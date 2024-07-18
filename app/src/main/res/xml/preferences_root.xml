@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    SPDX-FileCopyrightText: 2024 Andrew Gunnerson
+    SPDX-License-Identifier: GPL-3.0-only
+-->
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory
+        app:key="devices"
+        app:title="@string/pref_header_devices"
+        app:iconSpaceReserved="false">
+
+        <Preference
+            app:key="add_device"
+            app:persistent="false"
+            app:title="@string/pref_add_device_name"
+            app:summary="@string/pref_add_device_desc"
+            app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:title="@string/pref_header_usb"
+        app:iconSpaceReserved="false">
+
+        <Preference
+            app:key="active_functions"
+            app:persistent="false"
+            app:title="@string/pref_active_functions_name"
+            app:iconSpaceReserved="false" />
+
+        <Preference
+            app:key="enable_mass_storage"
+            app:persistent="false"
+            app:title="@string/pref_enable_mass_storage_name"
+            app:summary="@string/pref_enable_mass_storage_desc"
+            app:iconSpaceReserved="false" />
+
+        <Preference
+            app:key="disable_mass_storage"
+            app:persistent="false"
+            app:title="@string/pref_disable_mass_storage_name"
+            app:summary="@string/pref_disable_mass_storage_desc"
+            app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:title="@string/pref_header_about"
+        app:iconSpaceReserved="false">
+
+        <com.chiller3.msd.view.LongClickablePreference
+            app:key="version"
+            app:persistent="false"
+            app:title="@string/pref_version_name"
+            app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:key="debug"
+        app:title="@string/pref_header_debug"
+        app:iconSpaceReserved="false">
+
+        <Preference
+            app:key="open_log_dir"
+            app:persistent="false"
+            app:title="@string/pref_open_log_dir_name"
+            app:summary="@string/pref_open_log_dir_desc"
+            app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+</PreferenceScreen>

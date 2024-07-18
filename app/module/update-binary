@@ -1,0 +1,34 @@
+#!/sbin/sh
+
+# SPDX-FileCopyrightText: 2022-2023 Andrew Gunnerson
+# SPDX-License-Identifier: GPL-3.0-only
+# Based on BCR code.
+
+OUTFD=${2}
+ZIPFILE=${3}
+
+umask 022
+
+ui_print() {
+    printf "ui_print %s\nui_print\n" "${*}" > /proc/self/fd/"${OUTFD}"
+}
+
+if [ -f /sbin/recovery ] || [ -f /system/bin/recovery ]; then
+    # Installing via recovery.
+
+    ui_print 'Installing from recovery is not supported'
+    exit 1
+else
+    # Installing via Magisk Manager.
+
+    api_ver=$(getprop ro.build.version.sdk)
+    if [ "${api_ver}" -lt 33 ]; then
+        ui_print 'The Android version on this device is too old'
+        ui_print 'Required: SDK >=33 (Android >=13)'
+        ui_print "Current: SDK ${api_ver}"
+        exit 1
+    fi
+
+    . /data/adb/magisk/util_functions.sh
+    install_module
+fi

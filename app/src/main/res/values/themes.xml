@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    SPDX-FileCopyrightText: 2023 Andrew Gunnerson
+    SPDX-License-Identifier: GPL-3.0-only
+-->
+<resources>
+    <style name="Theme.MSD" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
+        <item name="windowActionModeOverlay">true</item>
+    </style>
+</resources>

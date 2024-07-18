@@ -1,0 +1,29 @@
+[advisories]
+version = 2
+yanked = "deny"
+
+[licenses]
+version = 2
+include-dev = true
+allow = [
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-3-Clause",
+    "GPL-3.0",
+    "ISC",
+    "LGPL-2.1",
+    "MIT",
+    "Unicode-DFS-2016",
+]
+
+[bans]
+multiple-versions = "warn"
+multiple-versions-include-dev = true
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-git = [
+    "https://github.com/chenxiaolong/sepatch",
+    "https://github.com/chenxiaolong/system-properties",
+]
