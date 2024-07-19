@@ -149,7 +149,7 @@ fn handle_set_mass_storage_request(request: &SetMassStorageRequest) -> Result<()
     let config_name = OsStr::new(CONFIG_NAME);
     let gadget = UsbGadget::new(GADGET_ROOT, CONFIGS_NAME)?;
 
-    // We need to SIGSTOP this process while be make our changes to prevent it
+    // We need to SIGSTOP this process while we make our changes to prevent it
     // from constantly trying to ensure that UDC is set to the expected value.
     // Stopping the `vendor.usb-gadget-hal` init service would be cleaner, but
     // does not work because the HAL fails restore its state properly after it
