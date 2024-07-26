@@ -81,7 +81,6 @@ pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
     let t_kernel = t!("kernel")?;
     let t_mediaprovider = t!("mediaprovider")?;
     let t_mediaprovider_app = t!("mediaprovider_app")?;
-    let t_mlstrustedobject = t!("mlstrustedobject")?;
     let t_mlstrustedsubject = t!("mlstrustedsubject")?;
     let t_selinuxfs = t!("selinuxfs")?;
     let t_shell = t!("shell")?;
@@ -183,7 +182,6 @@ pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
     pdb.add_to_role(r_r, t_daemon)?;
     pdb.set_attribute(t_daemon, t_domain, true)?;
     pdb.set_attribute(t_daemon, t_mlstrustedsubject, true)?;
-    pdb.set_attribute(t_daemon, t_mlstrustedobject, true)?;
 
     // Setting the `domain` attribute isn't sufficient to grab many of the
     // "standard" rules. These are defined in the sepolicy source with a target
