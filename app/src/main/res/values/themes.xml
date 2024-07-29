@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    SPDX-FileCopyrightText: 2023 Andrew Gunnerson
+    SPDX-FileCopyrightText: 2023-2024 Andrew Gunnerson
     SPDX-License-Identifier: GPL-3.0-only
 -->
 <resources>
@@ -9,5 +9,7 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
         <item name="windowActionModeOverlay">true</item>
+        <item name="switchPreferenceCompatStyle">@style/SwitchPreferenceCompat.Material3</item>
+        <item name="splitSwitchPreferenceStyle">@style/SplitSwitchPreference.Material3</item>
     </style>
 </resources>

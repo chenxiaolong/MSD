@@ -22,22 +22,24 @@ import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.get
 import androidx.preference.size
-import com.chiller3.msd.dialog.ImageSizeDialogFragment
 import com.chiller3.msd.BuildConfig
 import com.chiller3.msd.Preferences
 import com.chiller3.msd.R
 import com.chiller3.msd.dialog.DeviceDialogFragment
+import com.chiller3.msd.dialog.ImageSizeDialogFragment
 import com.chiller3.msd.dialog.MessageDialogFragment
 import com.chiller3.msd.extension.DOCUMENTSUI_AUTHORITY
 import com.chiller3.msd.extension.formattedString
 import com.chiller3.msd.view.LongClickablePreference
 import com.chiller3.msd.view.OnPreferenceLongClickListener
+import com.chiller3.msd.view.SplitSwitchPreference
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 
 class SettingsFragment : PreferenceFragmentCompat(), FragmentResultListener,
-    Preference.OnPreferenceClickListener, OnPreferenceLongClickListener {
+    Preference.OnPreferenceClickListener, OnPreferenceLongClickListener,
+    Preference.OnPreferenceChangeListener {
     companion object {
         private const val KEY_PARTIAL_STATE = "partial_state"
     }
@@ -317,7 +319,19 @@ class SettingsFragment : PreferenceFragmentCompat(), FragmentResultListener,
         return false
     }
 
-    private fun addDevicePreferences(certs: List<DeviceInfo>) {
+    override fun onPreferenceChange(preference: Preference, newValue: Any?): Boolean {
+        when {
+            preference.key.startsWith(Preferences.PREF_DEVICE_PREFIX) -> {
+                val index = preference.key.removePrefix(Preferences.PREF_DEVICE_PREFIX).toInt()
+                viewModel.toggleDevice(viewModel.devices.value[index].uri, newValue as Boolean)
+                // Intentionally not returning true since the view model will refresh the devices.
+            }
+        }
+
+        return false
+    }
+
+    private fun addDevicePreferences(devices: List<DeviceInfo>) {
         val context = requireContext()
 
         for (i in (0 until categoryDevices.size).reversed()) {
@@ -328,18 +342,21 @@ class SettingsFragment : PreferenceFragmentCompat(), FragmentResultListener,
             }
         }
 
-        for ((i, item) in certs.withIndex()) {
-            val p = Preference(context).apply {
+        for ((i, device) in devices.withIndex()) {
+            val p = SplitSwitchPreference(context).apply {
                 key = Preferences.PREF_DEVICE_PREFIX + i
                 isPersistent = false
-                title = when (item.type) {
+                title = when (device.type) {
                     DeviceType.CDROM -> getString(R.string.pref_device_name_cdrom)
                     DeviceType.DISK_RO -> getString(R.string.pref_device_name_disk_ro)
                     DeviceType.DISK_RW -> getString(R.string.pref_device_name_disk_rw)
                 }
-                summary = item.uri.formattedString
+                summary = device.uri.formattedString
                 isIconSpaceReserved = false
+                isPersistent = false
+                isChecked = device.enabled
                 onPreferenceClickListener = this@SettingsFragment
+                onPreferenceChangeListener = this@SettingsFragment
             }
 
             categoryDevices.addPreference(p)

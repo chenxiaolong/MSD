@@ -131,9 +131,9 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 val index = newDevices.indexOfFirst { it.uri == uri }
 
                 if (index >= 0) {
-                    newDevices[index] = DeviceInfo(uri, deviceType)
+                    newDevices[index] = newDevices[index].copy(type = deviceType)
                 } else {
-                    newDevices.add(DeviceInfo(uri, deviceType))
+                    newDevices.add(DeviceInfo(uri, deviceType, true))
 
                     // Only local files will ever work. Even if a SAF provider provides a regular
                     // file via a FUSE mount with StorageManager.openProxyFileDescriptor(), it won't
@@ -216,6 +216,17 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         refreshDevices()
     }
 
+    fun toggleDevice(uri: Uri, enabled: Boolean) {
+        prefs.devices = devices.value.map {
+            if (it.uri == uri) {
+                it.copy(enabled = enabled)
+            } else {
+                it
+            }
+        }
+        refreshDevices()
+    }
+
     private fun setMassStorage(newDevices: List<DeviceInfo>) {
         viewModelScope.launch {
             withLockedUi {
@@ -241,7 +252,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun enableMassStorage() {
-        setMassStorage(prefs.devices)
+        setMassStorage(prefs.devices.filter { it.enabled })
     }
 
     fun disableMassStorage() {
