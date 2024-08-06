@@ -527,8 +527,8 @@ dependencies = [
 
 [[package]]
 name = "sepatch"
-version = "0.2.0"
-source = "git+https://github.com/chenxiaolong/sepatch?tag=v0.2.0#1af38bbd833963c868cc2d64dacfec2ff8a94c03"
+version = "0.3.0"
+source = "git+https://github.com/chenxiaolong/sepatch?tag=v0.3.0#11b95d8b161a2981d4bd4c00658322a451f56210"
 dependencies = [
  "bindgen",
  "cc",

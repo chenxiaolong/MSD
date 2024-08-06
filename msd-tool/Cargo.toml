@@ -16,7 +16,7 @@ tracing-subscriber = "0.3.18"
 
 [dependencies.sepatch]
 git = "https://github.com/chenxiaolong/sepatch"
-tag = "v0.2.0"
+tag = "v0.3.0"
 
 [target.'cfg(target_os = "android")'.dependencies]
 libc = "0.2.155"

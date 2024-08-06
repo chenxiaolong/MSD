@@ -2,33 +2,75 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 use std::{
-    fs::File,
+    fs::{self, OpenOptions},
+    io::Write,
     path::{Path, PathBuf},
 };
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, bail, Context, Result};
 use clap::{Args, Parser};
 use sepatch::{PolicyDb, RuleAction};
 
-pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
-    let mut pdb = {
-        let path = cli.source.as_path();
-        let file =
-            File::open(path).with_context(|| format!("Failed to open for reading: {path:?}"))?;
+fn read_policy(path: &Path) -> Result<PolicyDb> {
+    let data = fs::read(path).with_context(|| format!("Failed to open for reading: {path:?}"))?;
 
-        let mut warnings = vec![];
-        let pdb = PolicyDb::from_reader(file, &mut warnings)
-            .with_context(|| format!("Failed to read sepolicy: {path:?}"))?;
+    let mut warnings = vec![];
+    let pdb = PolicyDb::from_raw(&data, &mut warnings).context("Failed to parse sepolicy")?;
 
-        if !warnings.is_empty() {
-            eprintln!("Warnings when loading sepolicy:");
-            for warning in warnings {
-                eprintln!("- {warning}");
-            }
+    if !warnings.is_empty() {
+        eprintln!("Warnings when loading sepolicy:");
+        for warning in warnings {
+            eprintln!("- {warning}");
         }
+    }
 
-        pdb
-    };
+    Ok(pdb)
+}
+
+fn write_policy(path: &Path, pdb: &PolicyDb) -> Result<()> {
+    let mut warnings = vec![];
+    let data = pdb
+        .to_raw(&mut warnings)
+        .context("Failed to build sepolicy")?;
+
+    if !warnings.is_empty() {
+        eprintln!("Warnings when saving sepolicy:");
+        for warning in warnings {
+            eprintln!("- {warning}");
+        }
+    }
+
+    let mut file = OpenOptions::new()
+        .create(true)
+        .truncate(false)
+        .write(true)
+        .open(path)
+        .with_context(|| format!("Failed to open for writing: {path:?}"))?;
+
+    // Truncate only if needed. Some apps detect if the policy is modified
+    // by looking at the modification timestamp of /sys/fs/selinux/load. A
+    // write() syscall does not change mtime, but O_TRUNC does. Also, utimensat
+    // does not work on selinuxfs.
+    let metadata = file
+        .metadata()
+        .with_context(|| format!("Failed to stat file: {path:?}"))?;
+    if metadata.len() > 0 {
+        file.set_len(0)
+            .with_context(|| format!("Failed to truncate file: {path:?}"))?;
+    }
+
+    let n = file
+        .write(&data)
+        .with_context(|| format!("Failed to write file: {path:?}"))?;
+    if n != data.len() {
+        bail!("Failed to write data in a single write call");
+    }
+
+    Ok(())
+}
+
+pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
+    let mut pdb = read_policy(cli.source.as_path())?;
 
     let n_source_type = "untrusted_app";
     let n_source_uffd_type = "untrusted_app_userfaultfd";
@@ -357,23 +399,7 @@ pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
         pdb.strip_no_audit();
     }
 
-    {
-        let path = cli.target.as_path();
-        let file =
-            File::create(path).with_context(|| format!("Failed to open for writing: {path:?}"))?;
-
-        let mut warnings = vec![];
-
-        pdb.to_writer(file, &mut warnings)
-            .with_context(|| format!("Failed to write sepolicy: {path:?}"))?;
-
-        if !warnings.is_empty() {
-            eprintln!("Warnings when saving sepolicy:");
-            for warning in warnings {
-                eprintln!("- {warning}");
-            }
-        }
-    }
+    write_policy(cli.target.as_path(), &pdb)?;
 
     Ok(())
 }
