@@ -7,7 +7,7 @@
     to update the actual links at the bottom of the file.
 -->
 
-### Unreleased
+### Version 1.2
 
 * msd-tool: Prevent updating the modification timestamp of `/sys/fs/selinux/load` ([Issue #2], [PR #6])
   * Please note there are no plans to implement further ways of evading detection by apps. This workaround just happened to be easy enough to implement.
