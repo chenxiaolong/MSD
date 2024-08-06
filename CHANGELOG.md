@@ -9,6 +9,9 @@
 
 ### Unreleased
 
+* msd-tool: Prevent updating the modification timestamp of `/sys/fs/selinux/load` ([Issue #2], [PR #6])
+  * Please note there are no plans to implement further ways of evading detection by apps. This workaround just happened to be easy enough to implement.
+
 ### Version 1.1
 
 * Update checksum for `tensorflow-lite-metadata-0.1.0-rc2.pom` dependency ([PR #1])
@@ -21,7 +24,9 @@
 * Initial release
 
 <!-- Do not manually edit the lines below. Use `./gradlew changelogUpdateLinks` to regenerate. -->
+[Issue #2]: https://github.com/chenxiaolong/MSD/issues/2
 [PR #1]: https://github.com/chenxiaolong/MSD/pull/1
 [PR #3]: https://github.com/chenxiaolong/MSD/pull/3
 [PR #4]: https://github.com/chenxiaolong/MSD/pull/4
 [PR #5]: https://github.com/chenxiaolong/MSD/pull/5
+[PR #6]: https://github.com/chenxiaolong/MSD/pull/6
