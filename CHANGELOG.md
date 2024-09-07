@@ -9,7 +9,7 @@
 
 ### Unreleased
 
-* Target API 35 ([PR #8])
+* Target API 35 ([PR #8], [PR #9])
 
 ### Version 1.2
 
@@ -35,3 +35,4 @@
 [PR #5]: https://github.com/chenxiaolong/MSD/pull/5
 [PR #6]: https://github.com/chenxiaolong/MSD/pull/6
 [PR #8]: https://github.com/chenxiaolong/MSD/pull/8
+[PR #9]: https://github.com/chenxiaolong/MSD/pull/9
