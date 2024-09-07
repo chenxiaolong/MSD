@@ -9,6 +9,8 @@
 
 ### Unreleased
 
+* Target API 35 ([PR #8])
+
 ### Version 1.2
 
 * msd-tool: Prevent updating the modification timestamp of `/sys/fs/selinux/load` ([Issue #2], [PR #6])
@@ -32,3 +34,4 @@
 [PR #4]: https://github.com/chenxiaolong/MSD/pull/4
 [PR #5]: https://github.com/chenxiaolong/MSD/pull/5
 [PR #6]: https://github.com/chenxiaolong/MSD/pull/6
+[PR #8]: https://github.com/chenxiaolong/MSD/pull/8
