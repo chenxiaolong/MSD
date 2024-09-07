@@ -11,6 +11,11 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.Parcelable
 import android.provider.DocumentsContract
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.fragment.app.FragmentResultListener
 import androidx.fragment.app.clearFragmentResult
 import androidx.fragment.app.viewModels
@@ -22,6 +27,7 @@ import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.get
 import androidx.preference.size
+import androidx.recyclerview.widget.RecyclerView
 import com.chiller3.msd.BuildConfig
 import com.chiller3.msd.Preferences
 import com.chiller3.msd.R
@@ -85,6 +91,37 @@ class SettingsFragment : PreferenceFragmentCompat(), FragmentResultListener,
                 viewModel.createDevice(it, state.size)
             }
         }
+
+    override fun onCreateRecyclerView(
+        inflater: LayoutInflater,
+        parent: ViewGroup,
+        savedInstanceState: Bundle?
+    ): RecyclerView {
+        val view = super.onCreateRecyclerView(inflater, parent, savedInstanceState)
+
+        view.clipToPadding = false
+
+        ViewCompat.setOnApplyWindowInsetsListener(view) { v, windowInsets ->
+            val insets = windowInsets.getInsets(
+                WindowInsetsCompat.Type.systemBars()
+                        or WindowInsetsCompat.Type.displayCutout()
+            )
+
+            // This is a little bit ugly in landscape mode because the divider lines for categories
+            // extend into the inset area. However, it's worth applying the left/right padding here
+            // anyway because it allows the inset area to be used for scrolling instead of just
+            // being a useless dead zone.
+            v.updatePadding(
+                bottom = insets.bottom,
+                left = insets.left,
+                right = insets.right,
+            )
+
+            WindowInsetsCompat.CONSUMED
+        }
+
+        return view
+    }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences_root, rootKey)
