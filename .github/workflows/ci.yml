@@ -40,6 +40,19 @@ jobs:
       - name: Cache Rust dependencies
         uses: Swatinem/rust-cache@v2
 
+      # We currently use the old eagerly evaluated android.ndkDirectory value in
+      # app/build.gradle.kts instead of the new lazily evaluated
+      # androidComponents.sdkComponents.ndkDirectory because the latter doesn't
+      # actually work (provider contains no value). However, because of this,
+      # AGP's automatic NDK installation breaks, so we need to manually install
+      # it here.
+      - name: Install Android NDK
+        shell: bash
+        run: |
+          set +o pipefail
+          version=$(sed -nr -e 's/^\s*ndkVersion\s*=\s"(.+)".*$/\1/p' app/build.gradle.kts)
+          yes | ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager "ndk;${version}"
+
       - name: Build and test
         # Debug build only since release builds require a signing key
         run: ./gradlew --no-daemon build zipDebug -x assembleRelease
