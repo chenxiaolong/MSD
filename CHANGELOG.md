@@ -7,7 +7,7 @@
     to update the actual links at the bottom of the file.
 -->
 
-### Unreleased
+### Version 1.3
 
 * Target API 35 ([PR #8], [PR #9])
 * Fix compatibility when installed alongside other modules that modify `plat_seapp_contexts` with upcoming versions of Magisk ([PR #13])
