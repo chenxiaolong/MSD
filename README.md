@@ -49,10 +49,11 @@ MSD does not need to run in the background. Once configured, the mass storage de
 
 The Android app part of MSD does not use any permissions at all. Also, despite that it is installed as a system app, the SELinux policy is configured so that it is not granted any more privileges than a regular user app.
 
-The daemon part of MSD runs as the `system` user and with the `CAP_CHOWN` capability allowed. The daemon is responsible for all USB configuration. It accepts 2 requests from the app:
+The daemon part of MSD runs as the `system` user and with the `CAP_CHOWN` capability allowed. The daemon is responsible for all USB configuration. It accepts 3 requests from the app:
 
 * Query the currently active USB gadget functions
 * Set up mass storage devices from a list of file descriptors
+* Query the currently active mass storage devices
 
 When setting up mass storage devices, the daemon never opens files on its own. The app opens files itself and then sends the open file descriptor the daemon over a Unix socket. This way, even if a malicious client happened to be able to connect to the daemon, it can't expose files over mass storage devices that it didn't already have access to.
 

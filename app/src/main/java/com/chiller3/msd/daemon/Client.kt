@@ -8,10 +8,12 @@ package com.chiller3.msd.daemon
 import android.content.Context
 import android.net.LocalSocket
 import android.net.LocalSocketAddress
+import android.net.Uri
 import android.os.ParcelFileDescriptor
 import com.chiller3.msd.settings.DeviceInfo
 import com.chiller3.msd.settings.DeviceType
 import java.io.Closeable
+import java.io.File
 import java.io.IOException
 
 class ClientException(message: String? = null, cause: Throwable? = null) : Exception(message, cause)
@@ -79,6 +81,28 @@ class Client : Closeable {
             for (fd in openFds) {
                 fd.close()
             }
+        }
+    }
+
+    fun getMassStorage(): List<DeviceInfo> {
+        val request = Request(GetMassStorageRequest)
+        request.toSocket(socket)
+
+        val response = Response.fromSocket(socket)
+        when (response.message) {
+            is ErrorResponse -> throw ClientException(response.message.message)
+            is GetMassStorageResponse -> return response.message.devices.map {
+                val type = if (it.cdrom) {
+                    DeviceType.CDROM
+                } else if (it.ro) {
+                    DeviceType.DISK_RO
+                } else {
+                    DeviceType.DISK_RW
+                }
+
+                DeviceInfo(Uri.fromFile(File(it.file)), type, true)
+            }
+            else -> throw IOException("Invalid response: ${response.message}")
         }
     }
 }

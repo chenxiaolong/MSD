@@ -12,6 +12,7 @@ use std::{
             net::UnixStream,
         },
     },
+    path::PathBuf,
 };
 
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
@@ -322,9 +323,99 @@ impl ToSocket for SetMassStorageResponse {
 }
 
 #[derive(Debug)]
+pub struct ActiveMassStorageDevice {
+    pub file: PathBuf,
+    pub cdrom: bool,
+    pub ro: bool,
+}
+
+impl FromSocket for ActiveMassStorageDevice {
+    fn from_socket(stream: &mut UnixStream) -> io::Result<Self> {
+        let file = read_data(stream)
+            .map(OsString::from_vec)
+            .map(PathBuf::from)?;
+        let cdrom = stream.read_u8()? != 0;
+        let ro = stream.read_u8()? != 0;
+
+        Ok(Self { file, cdrom, ro })
+    }
+}
+
+impl ToSocket for ActiveMassStorageDevice {
+    fn to_socket(&self, stream: &mut UnixStream) -> io::Result<()> {
+        write_data(stream, self.file.as_os_str().as_bytes())?;
+        stream.write_u8(self.cdrom.into())?;
+        stream.write_u8(self.ro.into())?;
+
+        Ok(())
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct GetMassStorageRequest;
+
+impl MessageId for GetMassStorageRequest {
+    const ID: u8 = 6;
+}
+
+impl FromSocket for GetMassStorageRequest {
+    fn from_socket(_stream: &mut UnixStream) -> io::Result<Self> {
+        Ok(Self)
+    }
+}
+
+impl ToSocket for GetMassStorageRequest {
+    fn to_socket(&self, _stream: &mut UnixStream) -> io::Result<()> {
+        Ok(())
+    }
+}
+
+#[derive(Debug)]
+pub struct GetMassStorageResponse {
+    pub devices: Vec<ActiveMassStorageDevice>,
+}
+
+impl MessageId for GetMassStorageResponse {
+    const ID: u8 = 7;
+}
+
+impl FromSocket for GetMassStorageResponse {
+    fn from_socket(stream: &mut UnixStream) -> io::Result<Self> {
+        let num_devices = stream.read_u8()?;
+        let mut devices = vec![];
+
+        for _ in 0..num_devices {
+            let device = ActiveMassStorageDevice::from_socket(stream)?;
+            devices.push(device);
+        }
+
+        Ok(Self { devices })
+    }
+}
+
+impl ToSocket for GetMassStorageResponse {
+    fn to_socket(&self, stream: &mut UnixStream) -> io::Result<()> {
+        if self.devices.len() > u8::MAX.into() {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "Number of devices exceeds u8 bounds",
+            ));
+        }
+
+        stream.write_u8(self.devices.len() as u8)?;
+        for device in &self.devices {
+            device.to_socket(stream)?;
+        }
+
+        Ok(())
+    }
+}
+
+#[derive(Debug)]
 pub enum Request {
     GetFunctions(GetFunctionsRequest),
     SetMassStorage(SetMassStorageRequest),
+    GetMassStorage(GetMassStorageRequest),
 }
 
 impl FromSocket for Request {
@@ -338,6 +429,9 @@ impl FromSocket for Request {
             SetMassStorageRequest::ID => {
                 SetMassStorageRequest::from_socket(stream).map(Self::SetMassStorage)
             }
+            GetMassStorageRequest::ID => {
+                GetMassStorageRequest::from_socket(stream).map(Self::GetMassStorage)
+            }
             _ => Err(io::Error::new(
                 io::ErrorKind::InvalidData,
                 format!("Invalid message ID: {id}"),
@@ -349,15 +443,17 @@ impl FromSocket for Request {
 impl ToSocket for Request {
     fn to_socket(&self, stream: &mut UnixStream) -> io::Result<()> {
         let id = match self {
-            Request::GetFunctions(m) => m.id(),
-            Request::SetMassStorage(m) => m.id(),
+            Self::GetFunctions(m) => m.id(),
+            Self::SetMassStorage(m) => m.id(),
+            Self::GetMassStorage(m) => m.id(),
         };
 
         stream.write_u8(id)?;
 
         match self {
-            Request::GetFunctions(m) => m.to_socket(stream),
-            Request::SetMassStorage(m) => m.to_socket(stream),
+            Self::GetFunctions(m) => m.to_socket(stream),
+            Self::SetMassStorage(m) => m.to_socket(stream),
+            Self::GetMassStorage(m) => m.to_socket(stream),
         }
     }
 }
@@ -367,6 +463,7 @@ pub enum Response {
     Error(ErrorResponse),
     GetFunctions(GetFunctionsResponse),
     SetMassStorage(SetMassStorageResponse),
+    GetMassStorage(GetMassStorageResponse),
 }
 
 impl FromSocket for Response {
@@ -381,6 +478,9 @@ impl FromSocket for Response {
             SetMassStorageResponse::ID => {
                 SetMassStorageResponse::from_socket(stream).map(Self::SetMassStorage)
             }
+            GetMassStorageResponse::ID => {
+                GetMassStorageResponse::from_socket(stream).map(Self::GetMassStorage)
+            }
             _ => Err(io::Error::new(
                 io::ErrorKind::InvalidData,
                 format!("Invalid message ID: {id}"),
@@ -392,17 +492,19 @@ impl FromSocket for Response {
 impl ToSocket for Response {
     fn to_socket(&self, stream: &mut UnixStream) -> io::Result<()> {
         let id = match self {
-            Response::Error(m) => m.id(),
-            Response::GetFunctions(m) => m.id(),
-            Response::SetMassStorage(m) => m.id(),
+            Self::Error(m) => m.id(),
+            Self::GetFunctions(m) => m.id(),
+            Self::SetMassStorage(m) => m.id(),
+            Self::GetMassStorage(m) => m.id(),
         };
 
         stream.write_u8(id)?;
 
         match self {
-            Response::Error(m) => m.to_socket(stream),
-            Response::GetFunctions(m) => m.to_socket(stream),
-            Response::SetMassStorage(m) => m.to_socket(stream),
+            Self::Error(m) => m.to_socket(stream),
+            Self::GetFunctions(m) => m.to_socket(stream),
+            Self::SetMassStorage(m) => m.to_socket(stream),
+            Self::GetMassStorage(m) => m.to_socket(stream),
         }
     }
 }

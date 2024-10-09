@@ -226,6 +226,64 @@ object SetMassStorageResponse : ResponseMessage, MessageId, FromSocket<SetMassSt
     override fun toSocket(stream: LocalSocket) {}
 }
 
+data class ActiveMassStorageDevice(val file: String, val cdrom: Boolean, val ro: Boolean) :
+    ToSocket {
+    companion object : FromSocket<ActiveMassStorageDevice> {
+        override fun fromSocket(stream: LocalSocket): ActiveMassStorageDevice {
+            val file = stream.inputStream.readData()
+            val cdrom = stream.inputStream.readByte().toInt() != 0
+            val ro = stream.inputStream.readByte().toInt() != 0
+
+            return ActiveMassStorageDevice(String(file), cdrom, ro)
+        }
+    }
+
+    override fun toSocket(stream: LocalSocket) {
+        stream.outputStream.writeData(file.toByteArray())
+        stream.outputStream.writeByte(if (cdrom) { 1 } else { 0 })
+        stream.outputStream.writeByte(if (ro) { 1 } else { 0 })
+    }
+}
+
+object GetMassStorageRequest : RequestMessage, MessageId, FromSocket<GetMassStorageRequest>,
+    ToSocket {
+    override val id: Byte = 6
+
+    override fun fromSocket(stream: LocalSocket): GetMassStorageRequest = this
+
+    override fun toSocket(stream: LocalSocket) {}
+}
+
+data class GetMassStorageResponse(val devices: List<ActiveMassStorageDevice>) : ResponseMessage,
+    ToSocket {
+    companion object : MessageId, FromSocket<GetMassStorageResponse> {
+        override val id: Byte = 7
+
+        override fun fromSocket(stream: LocalSocket): GetMassStorageResponse {
+            val numDevices = stream.inputStream.readByte().toInt()
+            val devices = mutableListOf<ActiveMassStorageDevice>()
+
+            for (i in 0 until numDevices) {
+                val device = ActiveMassStorageDevice.fromSocket(stream)
+                devices.add(device)
+            }
+
+            return GetMassStorageResponse(devices)
+        }
+    }
+
+    override fun toSocket(stream: LocalSocket) {
+        if (devices.size > Byte.MAX_VALUE) {
+            throw IllegalArgumentException("Number of devices exceeds u8 bounds")
+        }
+
+        stream.outputStream.writeByte(devices.size.toByte())
+        for (device in devices) {
+            device.toSocket(stream)
+        }
+    }
+}
+
 data class Request(val message: RequestMessage) : ToSocket {
     companion object : FromSocket<Request> {
         override fun fromSocket(stream: LocalSocket): Request {
@@ -234,6 +292,7 @@ data class Request(val message: RequestMessage) : ToSocket {
             val message = when (id) {
                 GetFunctionsRequest.id -> GetFunctionsRequest.fromSocket(stream)
                 SetMassStorageRequest.id -> SetMassStorageRequest.fromSocket(stream)
+                GetMassStorageRequest.id -> GetMassStorageRequest.fromSocket(stream)
                 else -> throw IOException("Invalid message ID: $id")
             }
 
@@ -245,6 +304,7 @@ data class Request(val message: RequestMessage) : ToSocket {
         val id = when (message) {
             is GetFunctionsRequest -> GetFunctionsRequest.id
             is SetMassStorageRequest -> SetMassStorageRequest.id
+            is GetMassStorageRequest -> GetMassStorageRequest.id
         }
 
         stream.outputStream.writeByte(id)
@@ -252,6 +312,7 @@ data class Request(val message: RequestMessage) : ToSocket {
         when (message) {
             is GetFunctionsRequest -> message.toSocket(stream)
             is SetMassStorageRequest -> message.toSocket(stream)
+            is GetMassStorageRequest -> message.toSocket(stream)
         }
     }
 }
@@ -265,6 +326,7 @@ data class Response(val message: ResponseMessage) : ToSocket {
                 ErrorResponse.id -> ErrorResponse.fromSocket(stream)
                 GetFunctionsResponse.id -> GetFunctionsResponse.fromSocket(stream)
                 SetMassStorageResponse.id -> SetMassStorageResponse.fromSocket(stream)
+                GetMassStorageResponse.id -> GetMassStorageResponse.fromSocket(stream)
                 else -> throw IOException("Invalid message ID: $id")
             }
 
@@ -277,6 +339,7 @@ data class Response(val message: ResponseMessage) : ToSocket {
             is ErrorResponse -> ErrorResponse.id
             is GetFunctionsResponse -> GetFunctionsResponse.id
             is SetMassStorageResponse -> SetMassStorageResponse.id
+            is GetMassStorageResponse -> GetMassStorageResponse.id
         }
 
         stream.outputStream.writeByte(id)
@@ -285,6 +348,7 @@ data class Response(val message: ResponseMessage) : ToSocket {
             is ErrorResponse -> message.toSocket(stream)
             is GetFunctionsResponse -> message.toSocket(stream)
             is SetMassStorageResponse -> message.toSocket(stream)
+            is GetMassStorageResponse -> message.toSocket(stream)
         }
     }
 }

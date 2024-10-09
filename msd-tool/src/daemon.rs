@@ -42,8 +42,9 @@ use tracing::{debug, error, info, info_span, warn};
 
 use crate::{
     message::{
-        self, ErrorResponse, FromSocket, GetFunctionsResponse, Request, Response,
-        SetMassStorageRequest, SetMassStorageResponse, ToSocket,
+        self, ActiveMassStorageDevice, ErrorResponse, FromSocket, GetFunctionsResponse,
+        GetMassStorageResponse, Request, Response, SetMassStorageRequest, SetMassStorageResponse,
+        ToSocket,
     },
     usb::UsbGadget,
     util::{self, ProcessStopper},
@@ -219,12 +220,30 @@ fn handle_set_mass_storage_request(request: &SetMassStorageRequest) -> Result<()
     Ok(())
 }
 
+fn handle_get_mass_storage_request() -> Result<Vec<ActiveMassStorageDevice>> {
+    let function_name = OsStr::new(FUNCTION_NAME);
+    let gadget = UsbGadget::new(GADGET_ROOT, CONFIGS_NAME)?;
+    let mut devices = vec![];
+
+    if let Some(function) = gadget.open_mass_storage_function(function_name)? {
+        for lun in function.luns()? {
+            let (file, cdrom, ro) = function.get_lun(lun)?;
+
+            devices.push(ActiveMassStorageDevice { file, cdrom, ro });
+        }
+    }
+
+    Ok(devices)
+}
+
 fn handle_request(request: &Request) -> Response {
     let ret = match request {
         Request::GetFunctions(_) => handle_get_functions_request()
             .map(|functions| Response::GetFunctions(GetFunctionsResponse { functions })),
         Request::SetMassStorage(r) => handle_set_mass_storage_request(r)
             .map(|_| Response::SetMassStorage(SetMassStorageResponse)),
+        Request::GetMassStorage(_) => handle_get_mass_storage_request()
+            .map(|devices| Response::GetMassStorage(GetMassStorageResponse { devices })),
     };
 
     ret.unwrap_or_else(|e| {

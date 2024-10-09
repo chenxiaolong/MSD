@@ -4,8 +4,11 @@
 use std::{
     collections::BTreeMap,
     ffi::{OsStr, OsString},
-    io::{self, IoSlice, Write},
-    os::fd::{AsRawFd, BorrowedFd},
+    io::{self, IoSlice, Read, Write},
+    os::{
+        fd::{AsRawFd, BorrowedFd},
+        unix::ffi::OsStringExt,
+    },
     path::{Path, PathBuf},
 };
 
@@ -28,6 +31,20 @@ fn open_configfs_rel_dir(dir_path: &Path, dir: &Dir, path: &Path) -> Result<Dir>
     dir.open_dir(path)
         .and_then(|d| util::check_fs_magic(d, util::CONFIGFS_MAGIC))
         .with_context(|| format!("Failed to open directory: {:?}", dir_path.join(path)))
+}
+
+fn read_configfs_file(dir_path: &Path, dir: &Dir, path: &Path) -> Result<Vec<u8>> {
+    || -> Result<Vec<u8>> {
+        let mut file = dir
+            .open(path)
+            .and_then(|d| util::check_fs_magic(d, util::CONFIGFS_MAGIC))?;
+
+        let mut buf = vec![];
+        file.read_to_end(&mut buf)?;
+
+        Ok(buf)
+    }()
+    .with_context(|| format!("Failed to read file: {:?}", dir_path.join(path)))
 }
 
 fn write_configfs_file(dir_path: &Path, dir: &Dir, path: &Path, bufs: &[IoSlice]) -> Result<()> {
@@ -354,6 +371,44 @@ impl MassStorageFunction {
                 Err(e).with_context(|| format!("Failed to delete LUN: {:?}", self.path.join(name)))
             }
         }
+    }
+
+    /// Get the configuration for an existing LUN. Returns the path, whether the
+    /// device is a CDROM, and whether the device is read-only.
+    pub fn get_lun(&self, lun: u8) -> Result<(PathBuf, bool, bool)> {
+        let name = format!("lun.{lun}");
+        let path = Path::new(&name);
+
+        let mut file = read_configfs_file(&self.path, &self.dir, &path.join("file"))?;
+        let mut cdrom = read_configfs_file(&self.path, &self.dir, &path.join("cdrom"))?;
+        let mut ro = read_configfs_file(&self.path, &self.dir, &path.join("ro"))?;
+
+        fn pop_newline(data: &mut Vec<u8>) -> Result<()> {
+            match data.pop() {
+                Some(b'\n') => return Ok(()),
+                Some(b) => data.push(b),
+                None => {}
+            }
+
+            bail!("configfs file did not end in newline: {data:?}");
+        }
+
+        pop_newline(&mut file)?;
+        pop_newline(&mut cdrom)?;
+        pop_newline(&mut ro)?;
+
+        fn get_bool(data: &[u8]) -> Result<bool> {
+            match data {
+                b"1" => Ok(true),
+                b"0" => Ok(false),
+                _ => bail!("configfs file did not contain boolean: {data:?}"),
+            }
+        }
+
+        let cdrom = get_bool(&cdrom)?;
+        let ro = get_bool(&ro)?;
+
+        Ok((PathBuf::from(OsString::from_vec(file)), cdrom, ro))
     }
 
     /// Set the configuration for a LUN. This can only be done if a LUN is newly

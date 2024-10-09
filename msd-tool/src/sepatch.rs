@@ -325,7 +325,14 @@ pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
     ] {
         pdb.set_rule(t_daemon, t_configfs, c_dir, perm, RuleAction::Allow);
     }
-    for perm in [p_file_create, p_file_open, p_file_setattr, p_file_write] {
+    for perm in [
+        p_file_create,
+        p_file_getattr,
+        p_file_open,
+        p_file_read,
+        p_file_setattr,
+        p_file_write,
+    ] {
         pdb.set_rule(t_daemon, t_configfs, c_file, perm, RuleAction::Allow);
     }
     for perm in [p_lnk_file_create, p_lnk_file_read, p_lnk_file_unlink] {

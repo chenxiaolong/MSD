@@ -10,8 +10,8 @@ use clap::{CommandFactory, Parser, Subcommand, ValueEnum};
 use crate::{
     daemon,
     message::{
-        self, FromSocket, GetFunctionsRequest, MassStorageDevice, Request, Response,
-        SetMassStorageRequest, ToSocket,
+        self, FromSocket, GetFunctionsRequest, GetMassStorageRequest, MassStorageDevice, Request,
+        Response, SetMassStorageRequest, ToSocket,
     },
 };
 
@@ -121,6 +121,32 @@ pub fn subcommand_client(cli: &ClientCli) -> Result<()> {
                 r => bail!("Invalid response: {r:?}"),
             }
         }
+        ClientCommand::GetMassStorage(_) => {
+            let request = Request::GetMassStorage(GetMassStorageRequest);
+            request
+                .to_socket(&mut stream)
+                .with_context(|| format!("Failed to send request: {request:?}"))?;
+
+            let response =
+                Response::from_socket(&mut stream).context("Failed to receive response")?;
+
+            match response {
+                Response::Error(r) => bail!("{}", r.message),
+                Response::GetMassStorage(r) => {
+                    for device in r.devices {
+                        let type_ = match (device.cdrom, device.ro) {
+                            (true, _) => MassStorageType::Cdrom,
+                            (false, true) => MassStorageType::DiskRo,
+                            (false, false) => MassStorageType::DiskRw,
+                        };
+                        let type_value = type_.to_possible_value().unwrap();
+
+                        println!("{} -> {:?}", type_value.get_name(), device.file);
+                    }
+                }
+                r => bail!("Invalid response: {r:?}"),
+            }
+        }
     }
 
     Ok(())
@@ -155,11 +181,16 @@ struct SetMassStorageCli {
     type_: Vec<MassStorageType>,
 }
 
+/// Get currently active mass storage devices.
+#[derive(Debug, Parser)]
+struct GetMassStorageCli;
+
 #[allow(clippy::enum_variant_names)]
 #[derive(Debug, Subcommand)]
 enum ClientCommand {
     GetFunctions(GetFunctionsCli),
     SetMassStorage(SetMassStorageCli),
+    GetMassStorage(GetMassStorageCli),
 }
 
 /// Send messages to daemon.
