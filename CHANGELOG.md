@@ -10,6 +10,7 @@
 ### Unreleased
 
 * Target API 35 ([PR #8], [PR #9])
+* Fix compatibility when installed alongside other modules that modify `plat_seapp_contexts` with upcoming versions of Magisk ([PR #13])
 
 ### Version 1.2
 
@@ -36,3 +37,4 @@
 [PR #6]: https://github.com/chenxiaolong/MSD/pull/6
 [PR #8]: https://github.com/chenxiaolong/MSD/pull/8
 [PR #9]: https://github.com/chenxiaolong/MSD/pull/9
+[PR #13]: https://github.com/chenxiaolong/MSD/pull/13
