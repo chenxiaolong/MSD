@@ -3,6 +3,16 @@
 
 source "${0%/*}/boot_common.sh" /data/local/tmp/msd.post-fs-data.log
 
+# toybox's `mountpoint` command only works for directories, but bind mounts can
+# be files too.
+has_mountpoint() {
+    local mnt=${1}
+
+    awk -v "mnt=${mnt}" \
+        'BEGIN { ret=1 } $5 == mnt { ret=0; exit } END { exit ret }' \
+        /proc/self/mountinfo
+}
+
 header Patching SELinux policy
 
 "${mod_dir}"/msd-tool."$(getprop ro.product.cpu.abi)" sepatch -ST
@@ -14,7 +24,9 @@ seapp_temp_dir=${mod_dir}/seapp_temp
 seapp_temp_file=${mod_dir}/seapp_temp/plat_seapp_contexts
 
 mkdir -p "${seapp_temp_dir}"
-mount -t tmpfs tmpfs "${seapp_temp_dir}"
+
+nsenter --mount=/proc/1/ns/mnt -- \
+    mount -t tmpfs "${app_id}" "${seapp_temp_dir}"
 
 # Full path because Magisk runs this script in busybox's standalone ash mode and
 # we need Android's toybox version of cp.
@@ -24,7 +36,12 @@ cat >> "${seapp_temp_file}" << EOF
 user=_app isPrivApp=true name=${app_id} domain=msd_app type=app_data_file levelFrom=all
 EOF
 
-mount -o ro,bind "${seapp_temp_file}" "${seapp_file}"
+while has_mountpoint "${seapp_file}"; do
+    umount -l "${seapp_file}"
+done
+
+nsenter --mount=/proc/1/ns/mnt -- \
+    mount -o ro,bind "${seapp_temp_file}" "${seapp_file}"
 
 # On some devices, the system time is set too late in the boot process. This,
 # for some reason, causes the package manager service to not update the package
