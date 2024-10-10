@@ -165,7 +165,7 @@ fn handle_set_mass_storage_request(request: &SetMassStorageRequest) -> Result<()
         })
         .context("Failed to search for gadget HAL process")?;
     if gadget_hal_stoppers.is_empty() {
-        bail!("Failed to find gadget HAL process");
+        warn!("No gadget HAL process found");
     }
 
     let Some(controller) = usb_controller()? else {
