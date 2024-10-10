@@ -68,8 +68,7 @@ class SettingsFragment : PreferenceFragmentCompat(), FragmentResultListener,
     private lateinit var categoryDebug: PreferenceCategory
     private lateinit var prefAddDevice: Preference
     private lateinit var prefActiveFunctions: Preference
-    private lateinit var prefEnableMassStorage: Preference
-    private lateinit var prefDisableMassStorage: Preference
+    private lateinit var prefApplySettings: Preference
     private lateinit var prefVersion: LongClickablePreference
     private lateinit var prefOpenLogDir: Preference
 
@@ -145,11 +144,8 @@ class SettingsFragment : PreferenceFragmentCompat(), FragmentResultListener,
         prefActiveFunctions = findPreference(Preferences.PREF_ACTIVE_FUNCTIONS)!!
         prefActiveFunctions.onPreferenceClickListener = this
 
-        prefEnableMassStorage = findPreference(Preferences.PREF_ENABLE_MASS_STORAGE)!!
-        prefEnableMassStorage.onPreferenceClickListener = this
-
-        prefDisableMassStorage = findPreference(Preferences.PREF_DISABLE_MASS_STORAGE)!!
-        prefDisableMassStorage.onPreferenceClickListener = this
+        prefApplySettings = findPreference(Preferences.PREF_APPLY_SETTINGS)!!
+        prefApplySettings.onPreferenceClickListener = this
 
         prefVersion = findPreference(Preferences.PREF_VERSION)!!
         prefVersion.onPreferenceClickListener = this
@@ -173,24 +169,8 @@ class SettingsFragment : PreferenceFragmentCompat(), FragmentResultListener,
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.CREATED) {
-                viewModel.canRefresh.collect {
-                    prefActiveFunctions.isEnabled = it
-                }
-            }
-        }
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.CREATED) {
-                viewModel.canEnable.collect {
-                    prefEnableMassStorage.isEnabled = it
-                }
-            }
-        }
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.CREATED) {
-                viewModel.canDisable.collect {
-                    prefDisableMassStorage.isEnabled = it
+                viewModel.canAct.collect {
+                    updateUiLockState(it)
                 }
             }
         }
@@ -305,20 +285,18 @@ class SettingsFragment : PreferenceFragmentCompat(), FragmentResultListener,
             }
             preference.key.startsWith(Preferences.PREF_DEVICE_PREFIX) -> {
                 val index = preference.key.removePrefix(Preferences.PREF_DEVICE_PREFIX).toInt()
-                DeviceDialogFragment.newInstance(viewModel.devices.value[index])
+                val device = viewModel.devices.value[index]
+
+                DeviceDialogFragment.newInstance(DeviceInfo(device.uri, device.type))
                     .show(parentFragmentManager.beginTransaction(), DeviceDialogFragment.TAG)
                 return true
             }
             preference === prefActiveFunctions -> {
-                viewModel.refreshFunctions()
+                viewModel.refreshUsbState()
                 return true
             }
-            preference === prefEnableMassStorage -> {
-                viewModel.enableMassStorage()
-                return true
-            }
-            preference === prefDisableMassStorage -> {
-                viewModel.disableMassStorage()
+            preference === prefApplySettings -> {
+                viewModel.setMassStorage()
                 return true
             }
             preference === prefVersion -> {
@@ -368,8 +346,18 @@ class SettingsFragment : PreferenceFragmentCompat(), FragmentResultListener,
         return false
     }
 
-    private fun addDevicePreferences(devices: List<DeviceInfo>) {
+    private fun updateUiLockState(canAct: Boolean) {
+        for (i in 0 until categoryDevices.size) {
+            categoryDevices[i].isEnabled = canAct
+        }
+
+        prefActiveFunctions.isEnabled = canAct
+        prefApplySettings.isEnabled = canAct
+    }
+
+    private fun addDevicePreferences(devices: List<UiDeviceInfo>) {
         val context = requireContext()
+        val canAct = viewModel.canAct.value
 
         for (i in (0 until categoryDevices.size).reversed()) {
             val p = categoryDevices[i]
@@ -392,6 +380,7 @@ class SettingsFragment : PreferenceFragmentCompat(), FragmentResultListener,
                 isIconSpaceReserved = false
                 isPersistent = false
                 isChecked = device.enabled
+                isEnabled = canAct
                 onPreferenceClickListener = this@SettingsFragment
                 onPreferenceChangeListener = this@SettingsFragment
             }
@@ -402,17 +391,17 @@ class SettingsFragment : PreferenceFragmentCompat(), FragmentResultListener,
 
     private fun onAlert(alert: Alert) {
         val msg = when (alert) {
-            is Alert.GetFunctionsFailure -> getString(R.string.alert_get_functions_failure)
-            is Alert.SetMassStorageFailure -> getString(R.string.alert_set_mass_storage_failure)
-            is Alert.ReenableRequired -> getString(R.string.alert_reenable_required)
+            is Alert.QueryStateFailure -> getString(R.string.alert_query_state_failure)
+            is Alert.ApplyStateFailure -> getString(R.string.alert_apply_state_failure)
+            is Alert.ReapplyRequired -> getString(R.string.alert_reapply_required)
             is Alert.NotLocalFile -> getString(R.string.alert_not_local_file)
             is Alert.CreateImageFailure -> getString(R.string.alert_create_image_failure)
         }
 
         val details = when (alert) {
-            is Alert.GetFunctionsFailure -> alert.error
-            is Alert.SetMassStorageFailure -> alert.error
-            is Alert.ReenableRequired -> null
+            is Alert.QueryStateFailure -> alert.error
+            is Alert.ApplyStateFailure -> alert.error
+            is Alert.ReapplyRequired -> null
             is Alert.NotLocalFile -> getString(R.string.alert_not_local_file_details)
             is Alert.CreateImageFailure -> alert.error
         }

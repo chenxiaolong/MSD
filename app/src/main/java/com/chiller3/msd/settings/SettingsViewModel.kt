@@ -9,9 +9,12 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.ParcelFileDescriptor
 import android.system.Os
 import android.system.OsConstants
 import android.util.Log
+import androidx.annotation.WorkerThread
+import androidx.core.net.toFile
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.chiller3.msd.Preferences
@@ -27,22 +30,56 @@ import kotlinx.coroutines.withContext
 import java.io.IOException
 
 sealed interface Alert {
-    data class GetFunctionsFailure(val error: String) : Alert
+    data class QueryStateFailure(val error: String) : Alert
 
-    data class SetMassStorageFailure(val error: String) : Alert
+    data class ApplyStateFailure(val error: String) : Alert
 
-    data object ReenableRequired : Alert
+    data object ReapplyRequired : Alert
 
     data object NotLocalFile : Alert
 
     data class CreateImageFailure(val error: String) : Alert
 }
 
+private val Throwable.alertMessage: String
+    get() = if (this is ClientException) {
+        message!!
+    } else {
+        toSingleLineString()
+    }
+
+data class UiDeviceInfo(
+    val uri: Uri,
+    val type: DeviceType,
+    val enabled: Boolean,
+)
+
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
     companion object {
         private val TAG = SettingsViewModel::class.java.simpleName
 
-        private const val CONFIG = "msd"
+        @WorkerThread
+        private fun getLocalPath(pfd: ParcelFileDescriptor): String =
+            Os.readlink("/proc/self/fd/${pfd.fd}")
+
+        // Only local files will ever work. Even if a SAF provider provides a regular file via a
+        // FUSE mount with StorageManager.openProxyFileDescriptor(), it won't work because Android's
+        // FuseAppLoop implementation disallows reopening files. The kernel has no interface for
+        // accepting an already-opened file descriptor.
+        // https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/com/android/internal/os/FuseAppLoop.java;l=269;drc=5d123b67756dffcfdebdb936ab2de2b29c799321
+        private fun rejectAppFuse(path: String) {
+            if (path.startsWith("/mnt/appfuse/")) {
+                throw IOException("StorageManager proxied fd is not reopenable")
+            }
+        }
+
+        @WorkerThread
+        private fun ensureRegularFile(pfd: ParcelFileDescriptor) {
+            val stat = Os.fstat(pfd.fileDescriptor)
+            if (stat.st_mode and OsConstants.S_IFMT != OsConstants.S_IFREG) {
+                throw IOException("Not a regular file")
+            }
+        }
     }
 
     private val context: Context
@@ -54,106 +91,108 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     private val _alerts = MutableStateFlow<List<Alert>>(emptyList())
     val alerts: StateFlow<List<Alert>> = _alerts
 
-    private val _canRefresh = MutableStateFlow(false)
-    val canRefresh: StateFlow<Boolean> = _canRefresh
+    private val _canAct = MutableStateFlow(false)
+    val canAct: StateFlow<Boolean> = _canAct
 
-    private val _canEnable = MutableStateFlow(false)
-    val canEnable: StateFlow<Boolean> = _canEnable
-
-    private val _canDisable = MutableStateFlow(false)
-    val canDisable: StateFlow<Boolean> = _canDisable
-
-    private val _devices = MutableStateFlow<List<DeviceInfo>>(emptyList())
-    val devices: StateFlow<List<DeviceInfo>> = _devices
+    private val _devices = MutableStateFlow<List<UiDeviceInfo>>(emptyList())
+    val devices: StateFlow<List<UiDeviceInfo>> = _devices
 
     private val _activeFunctions = MutableStateFlow<Map<String, String>>(emptyMap())
     val activeFunctions: StateFlow<Map<String, String>> = _activeFunctions
 
     init {
-        refreshFunctions()
-        refreshDevices()
+        refreshUsbState()
     }
 
-    private fun refreshUiLocks() {
-        val ok = operationsInProgress == 0
-
-        _canRefresh.update { ok }
-        _canEnable.update { ok && _devices.value.isNotEmpty() }
-        _canDisable.update { ok && _activeFunctions.value.contains(CONFIG) }
+    private fun refreshUiLock() {
+        _canAct.update { operationsInProgress == 0 }
     }
+
+    @WorkerThread
+    private fun openFd(uri: Uri, mode: String): ParcelFileDescriptor =
+        context.contentResolver.openFileDescriptor(uri, mode)
+            ?: throw IOException("File provider recently crashed for $uri")
 
     private suspend fun <T> withLockedUi(block: suspend () -> T): T {
         operationsInProgress += 1
-        refreshUiLocks()
+        refreshUiLock()
 
         try {
             return block()
         } finally {
             operationsInProgress -= 1
-            refreshUiLocks()
+            refreshUiLock()
         }
     }
 
-    fun refreshFunctions() {
+    fun refreshUsbState() {
         viewModelScope.launch {
             withLockedUi {
-                val functions = try {
+                var functions = emptyMap<String, String>()
+                var activeDevices = emptyList<DeviceInfo>()
+
+                try {
                     withContext(Dispatchers.IO) {
                         Client().use {
-                            it.getFunctions()
+                            functions = it.getFunctions()
+                            activeDevices = it.getMassStorage()
                         }
                     }
                 } catch (e: Exception) {
-                    Log.e(TAG, "Failed to list functions", e)
-                    val message = if (e is ClientException) {
-                        e.message!!
-                    } else {
-                        e.toSingleLineString()
+                    Log.e(TAG, "Failed to query USB state", e)
+                    _alerts.update { it + Alert.QueryStateFailure(e.alertMessage) }
+                }
+
+                val devices = mutableListOf<UiDeviceInfo>()
+
+                for (device in prefs.devices) {
+                    val path = try {
+                        withContext(Dispatchers.IO) {
+                            openFd(device.uri, "r").use {
+                                getLocalPath(it)
+                            }
+                        }
+                    } catch (e: Exception) {
+                        Log.w(TAG, "Failed to query path of ${device.uri}", e)
+                        // Ignore this. The backing file likely got deleted. The user will get an
+                        // error message when they try to use this file.
+                        ""
                     }
-                    _alerts.update { it + Alert.GetFunctionsFailure(message) }
-                    emptyMap()
+
+                    // Given how low the kernel/hardware limit is for the number of mass storage
+                    // devices, a dumb linear search is fast enough.
+                    val activeDevice = activeDevices.find { it.uri.toFile().toString() == path }
+                    val deviceType = activeDevice?.type ?: device.type
+
+                    devices.add(UiDeviceInfo(device.uri, deviceType, activeDevice != null))
                 }
 
                 _activeFunctions.update { functions }
+                _devices.update { devices }
             }
         }
     }
 
-    private fun refreshDevices() {
-        _devices.update { prefs.devices }
-        refreshUiLocks()
+    private fun writePrefs() {
+        prefs.devices = devices.value.map {
+            DeviceInfo(it.uri, it.type)
+        }
     }
 
     fun addDevice(uri: Uri, deviceType: DeviceType) {
         viewModelScope.launch {
             withLockedUi {
-                val newDevices = ArrayList(prefs.devices)
+                val newDevices = ArrayList(devices.value)
                 val index = newDevices.indexOfFirst { it.uri == uri }
 
                 if (index >= 0) {
                     newDevices[index] = newDevices[index].copy(type = deviceType)
                 } else {
-                    newDevices.add(DeviceInfo(uri, deviceType, true))
-
-                    // Only local files will ever work. Even if a SAF provider provides a regular
-                    // file via a FUSE mount with StorageManager.openProxyFileDescriptor(), it won't
-                    // work because Android's FuseAppLoop implementation disallows reopening files.
-                    // The kernel has no interface for accepting an already-opened file descriptor.
-                    // https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/com/android/internal/os/FuseAppLoop.java;l=269;drc=5d123b67756dffcfdebdb936ab2de2b29c799321
                     try {
                         withContext(Dispatchers.IO) {
-                            val fd = context.contentResolver.openFileDescriptor(uri, "r")
-                                ?: throw IOException("File provider recently crashed for $uri")
-                            fd.use {
-                                val stat = Os.fstat(fd.fileDescriptor)
-                                if (stat.st_mode and OsConstants.S_IFMT != OsConstants.S_IFREG) {
-                                    throw IOException("Not a regular file")
-                                }
-
-                                val target = Os.readlink("/proc/self/fd/${fd.fd}")
-                                if (target.startsWith("/mnt/appfuse/")) {
-                                    throw IOException("StorageManager proxied fd is not reopenable")
-                                }
+                            openFd(uri, "r").use {
+                                rejectAppFuse(getLocalPath(it))
+                                ensureRegularFile(it)
                             }
                         }
                     } catch (e: Exception) {
@@ -162,17 +201,21 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                         return@withLockedUi
                     }
 
+                    newDevices.add(UiDeviceInfo(uri, deviceType, true))
+
                     context.contentResolver.takePersistableUriPermission(
                         uri,
                         Intent.FLAG_GRANT_READ_URI_PERMISSION
                     )
                 }
 
-                prefs.devices = newDevices
-                refreshDevices()
+                _devices.update { newDevices }
 
-                if (Alert.ReenableRequired !in _alerts.value) {
-                    _alerts.update { it + Alert.ReenableRequired }
+                // Add to persistent settings as well.
+                writePrefs()
+
+                if (Alert.ReapplyRequired !in _alerts.value) {
+                    _alerts.update { it + Alert.ReapplyRequired }
                 }
             }
         }
@@ -183,9 +226,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             withLockedUi {
                 try {
                     withContext(Dispatchers.IO) {
-                        val fd = context.contentResolver.openFileDescriptor(uri, "rwt")
-                            ?: throw IOException("File provider recently crashed for $uri")
-                        fd.use {
+                        openFd(uri, "rwt").use {
                             Os.ftruncate(it.fileDescriptor, size)
                         }
                     }
@@ -212,51 +253,49 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
             Log.w(TAG, "Error when releasing persisted URI permission for: $uri", e)
         }
 
-        prefs.devices = devices.value.filter { it.uri != uri }
-        refreshDevices()
+        _devices.update { devices -> devices.filter { it.uri != uri } }
+
+        // Remove from persistent settings as well.
+        writePrefs()
     }
 
     fun toggleDevice(uri: Uri, enabled: Boolean) {
-        prefs.devices = devices.value.map {
-            if (it.uri == uri) {
-                it.copy(enabled = enabled)
-            } else {
-                it
+        _devices.update { devices ->
+            devices.map {
+                if (it.uri == uri) {
+                    it.copy(enabled = enabled)
+                } else {
+                    it
+                }
             }
         }
-        refreshDevices()
+
+        // No persistent settings to modify.
     }
 
-    private fun setMassStorage(newDevices: List<DeviceInfo>) {
+    fun setMassStorage() {
         viewModelScope.launch {
             withLockedUi {
                 try {
                     withContext(Dispatchers.IO) {
                         Client().use {
-                            it.setMassStorage(context, newDevices)
+                            it.setMassStorage(context, devices.value.mapNotNull { device ->
+                                if (device.enabled) {
+                                    DeviceInfo(device.uri, device.type)
+                                } else {
+                                    null
+                                }
+                            })
                         }
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "Failed to set mass storage devices", e)
-                    val message = if (e is ClientException) {
-                        e.message!!
-                    } else {
-                        e.toSingleLineString()
-                    }
-                    _alerts.update { it + Alert.SetMassStorageFailure(message) }
+                    _alerts.update { it + Alert.ApplyStateFailure(e.alertMessage) }
                 }
 
-                refreshFunctions()
+                refreshUsbState()
             }
         }
-    }
-
-    fun enableMassStorage() {
-        setMassStorage(prefs.devices.filter { it.enabled })
-    }
-
-    fun disableMassStorage() {
-        setMassStorage(emptyList())
     }
 
     fun acknowledgeFirstAlert() {

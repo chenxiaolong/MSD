@@ -35,6 +35,8 @@ class MainApplication : Application() {
 
         // Enable Material You colors
         DynamicColors.applyToActivitiesIfAvailable(this)
+
+        Preferences(this).migrationRemoveEnableState()
     }
 
     companion object {

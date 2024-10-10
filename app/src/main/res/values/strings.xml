@@ -20,10 +20,8 @@
     <!-- USB preferences -->
     <string name="pref_active_functions_name">Active USB gadget functions</string>
     <string name="pref_active_functions_desc_none">(No active functions. Press to refresh.)</string>
-    <string name="pref_enable_mass_storage_name">Enable mass storage function</string>
-    <string name="pref_enable_mass_storage_desc">Enable emulating the specified mass storage devices.</string>
-    <string name="pref_disable_mass_storage_name">Disable mass storage function</string>
-    <string name="pref_disable_mass_storage_desc">Remove all emulated mass storage devices.</string>
+    <string name="pref_enable_mass_storage_name">Apply settings</string>
+    <string name="pref_enable_mass_storage_desc">Enable or disable emulating the specified mass storage devices.</string>
 
     <!-- About "preference" -->
     <string name="pref_version_name">Version</string>
@@ -34,9 +32,9 @@
 
     <!-- Alerts -->
     <string name="action_details">Details</string>
-    <string name="alert_get_functions_failure">Failed to get list of active USB gadget functions.</string>
-    <string name="alert_set_mass_storage_failure">Failed to configure mass storage device emulation.</string>
-    <string name="alert_reenable_required">The changes will take effect the next time the mass storage function is enabled.</string>
+    <string name="alert_query_state_failure">Failed to query USB controller state.</string>
+    <string name="alert_apply_state_failure">Failed to configure USB controller.</string>
+    <string name="alert_reapply_required">The changes will take effect the next time the settings are applied.</string>
     <string name="alert_not_local_file">Failed to add image because it is not a local file.</string>
     <string name="alert_not_local_file_details">The image could not be added because it is not a local file. Even if the third party app goes through the effort to provide a file descriptor supporting random access, Android\'s limitations on reopening files prevents it from being used.</string>
     <string name="alert_create_image_failure">Failed to create new writable disk image.</string>

@@ -18,8 +18,7 @@ class Preferences(context: Context) {
         const val PREF_ADD_DEVICE = "add_device"
         const val PREF_DEVICE_PREFIX = "device_"
         const val PREF_ACTIVE_FUNCTIONS = "active_functions"
-        const val PREF_ENABLE_MASS_STORAGE = "enable_mass_storage"
-        const val PREF_DISABLE_MASS_STORAGE = "disable_mass_storage"
+        const val PREF_APPLY_SETTINGS = "apply_settings"
 
         const val PREF_VERSION = "version"
         const val PREF_OPEN_LOG_DIR = "open_log_dir"
@@ -54,4 +53,14 @@ class Preferences(context: Context) {
     var isDebugMode: Boolean
         get() = prefs.getBoolean(PREF_DEBUG_MODE, false)
         set(enabled) = prefs.edit { putBoolean(PREF_DEBUG_MODE, enabled) }
+
+    /** Remove persistent per-device enable state from version <= 1.3. */
+    fun migrationRemoveEnableState() = prefs.edit {
+        val keys = prefs.all.keys.filter {
+            it.startsWith(PREF_DEVICE_PREFIX) && it.endsWith("_enabled")
+        }
+        for (key in keys) {
+            remove(key)
+        }
+    }
 }

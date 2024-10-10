@@ -100,7 +100,7 @@ class Client : Closeable {
                     DeviceType.DISK_RW
                 }
 
-                DeviceInfo(Uri.fromFile(File(it.file)), type, true)
+                DeviceInfo(Uri.fromFile(File(it.file)), type)
             }
             else -> throw IOException("Invalid response: ${response.message}")
         }

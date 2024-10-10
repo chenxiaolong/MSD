@@ -28,17 +28,10 @@
             app:iconSpaceReserved="false" />
 
         <Preference
-            app:key="enable_mass_storage"
+            app:key="apply_settings"
             app:persistent="false"
             app:title="@string/pref_enable_mass_storage_name"
             app:summary="@string/pref_enable_mass_storage_desc"
-            app:iconSpaceReserved="false" />
-
-        <Preference
-            app:key="disable_mass_storage"
-            app:persistent="false"
-            app:title="@string/pref_disable_mass_storage_name"
-            app:summary="@string/pref_disable_mass_storage_desc"
             app:iconSpaceReserved="false" />
     </PreferenceCategory>
 

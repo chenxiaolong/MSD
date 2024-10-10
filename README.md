@@ -39,7 +39,7 @@ MSD is installed as a Magisk/KernelSU module so that it can run with system app 
 
 4. Add one or more CD-ROM/disk images.
 
-5. Enable the mass storage function.
+5. Apply the settings.
 
 6. That's it!
 
