@@ -9,6 +9,8 @@
 
 ### Unreleased
 
+* Make the UI more intuitive and better reflect the current state of the USB controller ([PR #14])
+
 ### Version 1.3
 
 * Target API 35 ([PR #8], [PR #9])
@@ -40,3 +42,4 @@
 [PR #8]: https://github.com/chenxiaolong/MSD/pull/8
 [PR #9]: https://github.com/chenxiaolong/MSD/pull/9
 [PR #13]: https://github.com/chenxiaolong/MSD/pull/13
+[PR #14]: https://github.com/chenxiaolong/MSD/pull/14
