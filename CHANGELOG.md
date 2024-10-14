@@ -7,7 +7,7 @@
     to update the actual links at the bottom of the file.
 -->
 
-### Unreleased
+### Version 1.4
 
 * Make the UI more intuitive and better reflect the current state of the USB controller ([PR #14])
 
