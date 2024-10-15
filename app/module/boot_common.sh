@@ -4,6 +4,9 @@
 
 # source "${0%/*}/boot_common.sh" <log file>
 
+log_dir=$(dirname "${1}")
+mkdir -p "${log_dir}"
+
 exec >"${1}" 2>&1
 
 mod_dir=${0%/*}

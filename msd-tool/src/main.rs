@@ -11,11 +11,11 @@ mod util;
 use std::{
     fmt,
     io::{self, IsTerminal},
+    process::ExitCode,
 };
 
-use anyhow::Result;
 use clap::{Parser, Subcommand, ValueEnum};
-use tracing::Level;
+use tracing::{error, Level};
 
 #[allow(clippy::enum_variant_names)]
 #[derive(Debug, Subcommand)]
@@ -87,14 +87,22 @@ fn init_logging(target: LogTarget, level: Level) {
     }
 }
 
-fn main() -> Result<()> {
+fn main() -> ExitCode {
     let cli = Cli::parse();
 
     init_logging(cli.log_target, cli.log_level);
 
-    match cli.command {
+    let ret = match cli.command {
         Command::Client(c) => client::subcommand_client(&c),
         Command::Daemon(c) => daemon::subcommand_daemon(&c),
         Command::Sepatch(c) => sepatch::subcommand_sepatch(&c),
+    };
+
+    match ret {
+        Ok(()) => ExitCode::SUCCESS,
+        Err(e) => {
+            error!("{e:?}");
+            ExitCode::FAILURE
+        }
     }
 }

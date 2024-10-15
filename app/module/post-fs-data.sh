@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2023-2024 Andrew Gunnerson
 # SPDX-License-Identifier: GPL-3.0-only
 
-source "${0%/*}/boot_common.sh" /data/local/tmp/msd.post-fs-data.log
+source "${0%/*}/boot_common.sh" /data/local/tmp/msd/post-fs-data.log
 
 # toybox's `mountpoint` command only works for directories, but bind mounts can
 # be files too.
@@ -15,7 +15,9 @@ has_mountpoint() {
 
 header Patching SELinux policy
 
+cp /sys/fs/selinux/policy "${log_dir}"/sepolicy.orig
 "${mod_dir}"/msd-tool."$(getprop ro.product.cpu.abi)" sepatch -ST
+cp /sys/fs/selinux/policy "${log_dir}"/sepolicy.patched
 
 header Updating seapp_contexts
 
