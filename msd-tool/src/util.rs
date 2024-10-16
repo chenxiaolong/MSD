@@ -2,13 +2,16 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 use std::{
-    ffi::OsStr,
+    ffi::OsString,
     io,
     os::fd::{AsFd, OwnedFd},
     path::PathBuf,
 };
 
-use cap_std::{ambient_authority, fs::Dir};
+use cap_std::{
+    ambient_authority,
+    fs::{Dir, ReadDir},
+};
 use rustix::{
     io::Errno,
     process::{Pid, Signal},
@@ -82,62 +85,80 @@ pub fn pidfd_send_signal<Fd: AsFd>(pidfd: Fd, sig: Signal) -> Result<(), Errno> 
     }
 }
 
-/// Find all pids where `/proc/<pid>/comm` equals the specified name and open a
-/// pidfd to them. PIDs that disappear during procfs traversal and PIDs that
+/// Iterate through all PIDs, yielding a pidfd and the process executable name.
+/// Kernel threads, PIDs that disappear during procfs traversal, and PIDs that
 /// cannot be read due to permissions are ignored.
-pub fn find_process(name: &OsStr) -> io::Result<Vec<OwnedFd>> {
-    let dir = Dir::open_ambient_dir("/proc", ambient_authority())
-        .and_then(|d| check_fs_magic(d, PROC_SUPER_MAGIC))?;
+pub struct ProcessIter {
+    dir: Dir,
+    entries: ReadDir,
+}
 
-    let mut result = vec![];
+impl ProcessIter {
+    pub fn new() -> io::Result<Self> {
+        let dir = Dir::open_ambient_dir("/proc", ambient_authority())
+            .and_then(|d| check_fs_magic(d, PROC_SUPER_MAGIC))?;
+        let entries = dir.entries()?;
 
-    for entry in dir.entries()? {
-        let entry = entry?;
+        Ok(Self { dir, entries })
+    }
+}
 
-        let Some(pid) = entry
-            .file_name()
-            .to_str()
-            .and_then(|s| s.parse::<i32>().ok())
-            .and_then(Pid::from_raw)
-        else {
-            continue;
-        };
+impl Iterator for ProcessIter {
+    type Item = io::Result<(OwnedFd, OsString)>;
 
-        let pidfd = match pidfd_open(pid) {
-            Ok(c) => c,
-            Err(e)
-                if e.kind() == io::ErrorKind::NotFound
-                    || e.kind() == io::ErrorKind::PermissionDenied =>
-            {
-                continue
-            }
-            Err(e) => return Err(e.into()),
-        };
+    fn next(&mut self) -> Option<Self::Item> {
+        for entry in &mut self.entries {
+            let entry = match entry {
+                Ok(e) => e,
+                Err(e) => return Some(Err(e)),
+            };
 
-        let mut path = PathBuf::from(entry.file_name());
-        path.push("exe");
+            let Some(pid) = entry
+                .file_name()
+                .to_str()
+                .and_then(|s| s.parse::<i32>().ok())
+                .and_then(Pid::from_raw)
+            else {
+                continue;
+            };
 
-        // ENOENT in this case is not due to disappearing PIDs, but rather PIDs
-        // being kernel threads, which don't have a corresponding executable.
-        let target = match dir.read_link_contents(&path) {
-            Ok(c) => c,
-            Err(e)
-                if e.kind() == io::ErrorKind::NotFound
-                    || e.kind() == io::ErrorKind::PermissionDenied =>
-            {
-                continue
-            }
-            Err(e) => return Err(e),
-        };
+            let pidfd = match pidfd_open(pid) {
+                Ok(c) => c,
+                Err(e)
+                    if e.kind() == io::ErrorKind::NotFound
+                        || e.kind() == io::ErrorKind::PermissionDenied =>
+                {
+                    continue
+                }
+                Err(e) => return Some(Err(e.into())),
+            };
 
-        if target.file_name() != Some(name) {
-            continue;
+            let mut path = PathBuf::from(entry.file_name());
+            path.push("exe");
+
+            // ENOENT in this case is not due to disappearing PIDs, but rather
+            // PIDs being kernel threads, which don't have a corresponding
+            // executable.
+            let target = match self.dir.read_link_contents(&path) {
+                Ok(c) => c,
+                Err(e)
+                    if e.kind() == io::ErrorKind::NotFound
+                        || e.kind() == io::ErrorKind::PermissionDenied =>
+                {
+                    continue
+                }
+                Err(e) => return Some(Err(e)),
+            };
+
+            let Some(file_name) = target.file_name() else {
+                continue;
+            };
+
+            return Some(Ok((pidfd, file_name.to_owned())));
         }
 
-        result.push(pidfd);
+        None
     }
-
-    Ok(result)
 }
 
 /// Send SIGSTOP to a process when constructed and SIGCONT when dropped.

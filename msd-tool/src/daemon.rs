@@ -47,7 +47,7 @@ use crate::{
         ToSocket,
     },
     usb::UsbGadget,
-    util::{self, ProcessStopper},
+    util::{self, ProcessIter, ProcessStopper},
 };
 
 const SELINUX_ENFORCE: &str = "/sys/fs/selinux/enforce";
@@ -156,16 +156,26 @@ fn handle_set_mass_storage_request(request: &SetMassStorageRequest) -> Result<()
     // does not work because the HAL fails restore its state properly after it
     // starts back up, causing UDC to be cleared every time the device is
     // unplugged.
-    let gadget_hal_stoppers = util::find_process(OsStr::new(GADGET_HAL_PROCESS))
-        .and_then(|pidfds| {
-            pidfds
-                .into_iter()
-                .map(|fd| ProcessStopper::new(fd).map_err(io::Error::from))
-                .collect::<io::Result<Vec<_>>>()
+    let gadget_hal_stoppers = ProcessIter::new()
+        .context("Failed to search running processes")?
+        .filter(|result| {
+            if let Ok((_, name)) = result {
+                // The Pixel 6 Pro has a ".gs101" suffix. If the naming becomes
+                // too convoluted in the future, we can filter by SELinux label.
+                if let Some(name) = name.to_str() {
+                    name.starts_with(GADGET_HAL_PROCESS)
+                } else {
+                    false
+                }
+            } else {
+                true
+            }
         })
+        .map(|r| r.and_then(|(fd, _)| ProcessStopper::new(fd).map_err(io::Error::from)))
+        .collect::<io::Result<Vec<_>>>()
         .context("Failed to search for gadget HAL process")?;
     if gadget_hal_stoppers.is_empty() {
-        bail!("Failed to find gadget HAL process");
+        bail!("Failed to find gadget HAL process: {GADGET_HAL_PROCESS}*");
     }
 
     let Some(controller) = usb_controller()? else {
