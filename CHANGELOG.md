@@ -9,6 +9,8 @@
 
 ### Unreleased
 
+* Add additional logging to boot scripts to make troubleshooting easier ([Issue #12], [PR #15])
+
 ### Version 1.4
 
 * Make the UI more intuitive and better reflect the current state of the USB controller ([PR #14])
@@ -36,6 +38,7 @@
 
 <!-- Do not manually edit the lines below. Use `./gradlew changelogUpdateLinks` to regenerate. -->
 [Issue #2]: https://github.com/chenxiaolong/MSD/issues/2
+[Issue #12]: https://github.com/chenxiaolong/MSD/issues/12
 [PR #1]: https://github.com/chenxiaolong/MSD/pull/1
 [PR #3]: https://github.com/chenxiaolong/MSD/pull/3
 [PR #4]: https://github.com/chenxiaolong/MSD/pull/4
@@ -45,3 +48,4 @@
 [PR #9]: https://github.com/chenxiaolong/MSD/pull/9
 [PR #13]: https://github.com/chenxiaolong/MSD/pull/13
 [PR #14]: https://github.com/chenxiaolong/MSD/pull/14
+[PR #15]: https://github.com/chenxiaolong/MSD/pull/15
