@@ -70,10 +70,9 @@ MSD has hidden debug options that can be enabled or disabled by long pressing th
 To access the MSD's logs, enable debug mode and press `Open log directory` to open the log directory in the system file manager (DocumentsUI). Or alternatively, browse to `/sdcard/Android/com.chiller3.msd/files` manually.
 
 * `crash.log`: Logs for the last crash.
-* `/data/local/tmp/msd.post-fs-data.log`: Logs for `post-fs-data.sh` boot script.
-* `/data/local/tmp/msd.service.log`: Logs for `service.sh` boot script.
+* `/data/local/tmp/msd/*`: Logs for the boot scripts.
 
-To monitor the daemon's logs, run `adb logcat -v color -s msd-tool`.
+To monitor the daemon's logs, run `adb logcat -v color -s msd-tool` or look at `/data/local/tmp/msd/msd-tool.log`.
 
 When reporting bugs, please include all of the logs as they are extremely helpful for identifying what might be going wrong.
 
