@@ -7,7 +7,7 @@
     to update the actual links at the bottom of the file.
 -->
 
-### Unreleased
+### Version 1.5
 
 * Add additional logging to boot scripts to make troubleshooting easier ([Issue #12], [PR #15])
 * Relax process search criteria to find Pixel 6 series' USB gadget HAL after recent OS updates ([Issue #12], [PR #16])
