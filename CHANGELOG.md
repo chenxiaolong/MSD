@@ -10,6 +10,7 @@
 ### Unreleased
 
 * Add additional logging to boot scripts to make troubleshooting easier ([Issue #12], [PR #15])
+* Relax process search criteria to find Pixel 6 series' USB gadget HAL after recent OS updates ([Issue #12], [PR #16])
 
 ### Version 1.4
 
@@ -49,3 +50,4 @@
 [PR #13]: https://github.com/chenxiaolong/MSD/pull/13
 [PR #14]: https://github.com/chenxiaolong/MSD/pull/14
 [PR #15]: https://github.com/chenxiaolong/MSD/pull/15
+[PR #16]: https://github.com/chenxiaolong/MSD/pull/16
