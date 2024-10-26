@@ -9,6 +9,8 @@
 
 ### Unreleased
 
+* Fix compatibility with KernelSU ([Issue #17], [PR #18])
+
 ### Version 1.5
 
 * Add additional logging to boot scripts to make troubleshooting easier ([Issue #12], [PR #15])
@@ -42,6 +44,7 @@
 <!-- Do not manually edit the lines below. Use `./gradlew changelogUpdateLinks` to regenerate. -->
 [Issue #2]: https://github.com/chenxiaolong/MSD/issues/2
 [Issue #12]: https://github.com/chenxiaolong/MSD/issues/12
+[Issue #17]: https://github.com/chenxiaolong/MSD/issues/17
 [PR #1]: https://github.com/chenxiaolong/MSD/pull/1
 [PR #3]: https://github.com/chenxiaolong/MSD/pull/3
 [PR #4]: https://github.com/chenxiaolong/MSD/pull/4
@@ -53,3 +56,4 @@
 [PR #14]: https://github.com/chenxiaolong/MSD/pull/14
 [PR #15]: https://github.com/chenxiaolong/MSD/pull/15
 [PR #16]: https://github.com/chenxiaolong/MSD/pull/16
+[PR #18]: https://github.com/chenxiaolong/MSD/pull/18
