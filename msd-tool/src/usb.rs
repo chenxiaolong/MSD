@@ -13,7 +13,10 @@ use std::{
 };
 
 use anyhow::{anyhow, bail, Context, Result};
-use cap_std::{ambient_authority, fs::Dir};
+use cap_std::{
+    ambient_authority,
+    fs::{Dir, MetadataExt},
+};
 use rustix::{
     fs::{AtFlags, Gid, Uid},
     io::Errno,
@@ -131,6 +134,16 @@ impl UsbGadget {
         let root = root.into();
         let config_name = config_name.into();
         let dir = open_configfs_dir(&root)?;
+
+        let metadata = dir
+            .dir_metadata()
+            .with_context(|| format!("Failed to stat directory: {root:?}"))?;
+        if metadata.uid() == 0 && metadata.gid() == 0 {
+            // Older devices without the gadget HAL might leave the files owned
+            // by root because the USB config switching is done by init scripts
+            // that have root privileges.
+            chown_configfs_dir_to_rugid(&root, &dir, Path::new("."))?;
+        }
 
         Ok(Self {
             root,

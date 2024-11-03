@@ -24,8 +24,6 @@ MSD is installed as a Magisk/KernelSU module so that it can run with system app 
   * To check, run `ls /config/usb_gadget/g1` as root.
 * The device's kernel must be compiled with support for the mass storage USB gadget
   * To check, run `zcat /proc/config.gz | grep CONFIG_USB_CONFIGFS_MASS_STORAGE` as root.
-* The device must use Android's USB gadget HAL
-  * To check, run `pgrep -f android.hardware.usb.gadget-service` as root.
 * Only local files are supported
   * Android's Storage Access Framework allows cloud providers to present a file as a local file using FUSE (specifically, via `StorageManager.openProxyFileDescriptor`). Unfortunately, even for the few cloud providers that support this, these files cannot be used because Android's implementation of this mechanism does not allow files to be reopened. Setting up a mass storage device requires reopening the file because the kernel has no way to accept an already open file descriptor.
 

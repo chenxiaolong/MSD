@@ -162,6 +162,7 @@ pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
     let c_lnk_file = c!("lnk_file")?;
     let p_lnk_file_create = p!(c_lnk_file, "create")?;
     let p_lnk_file_read = p!(c_lnk_file, "read")?;
+    let p_lnk_file_setattr = p!(c_lnk_file, "setattr")?;
     let p_lnk_file_unlink = p!(c_lnk_file, "unlink")?;
 
     let c_process = c!("process")?;
@@ -335,7 +336,12 @@ pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
     ] {
         pdb.set_rule(t_daemon, t_configfs, c_file, perm, RuleAction::Allow);
     }
-    for perm in [p_lnk_file_create, p_lnk_file_read, p_lnk_file_unlink] {
+    for perm in [
+        p_lnk_file_create,
+        p_lnk_file_read,
+        p_lnk_file_setattr,
+        p_lnk_file_unlink,
+    ] {
         pdb.set_rule(t_daemon, t_configfs, c_lnk_file, perm, RuleAction::Allow);
     }
 
