@@ -7,7 +7,7 @@
     to update the actual links at the bottom of the file.
 -->
 
-### Unreleased
+### Version 1.6
 
 * Fix compatibility with KernelSU ([Issue #17], [PR #18])
 * Add support for devices without the gadget HAL ([Issue #19], [PR #20])
