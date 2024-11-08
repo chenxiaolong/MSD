@@ -10,6 +10,7 @@
 ### Unreleased
 
 * Fix compatibility with KernelSU ([Issue #17], [PR #18])
+* Add support for devices without the gadget HAL ([Issue #19], [PR #20])
 
 ### Version 1.5
 
@@ -45,6 +46,7 @@
 [Issue #2]: https://github.com/chenxiaolong/MSD/issues/2
 [Issue #12]: https://github.com/chenxiaolong/MSD/issues/12
 [Issue #17]: https://github.com/chenxiaolong/MSD/issues/17
+[Issue #19]: https://github.com/chenxiaolong/MSD/issues/19
 [PR #1]: https://github.com/chenxiaolong/MSD/pull/1
 [PR #3]: https://github.com/chenxiaolong/MSD/pull/3
 [PR #4]: https://github.com/chenxiaolong/MSD/pull/4
@@ -57,3 +59,4 @@
 [PR #15]: https://github.com/chenxiaolong/MSD/pull/15
 [PR #16]: https://github.com/chenxiaolong/MSD/pull/16
 [PR #18]: https://github.com/chenxiaolong/MSD/pull/18
+[PR #20]: https://github.com/chenxiaolong/MSD/pull/20
