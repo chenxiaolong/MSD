@@ -28,7 +28,7 @@ class Client : Closeable {
             negotiateProtocol(socket)
         } catch (e: IOException) {
             socket.close()
-            throw e
+            throw IOException("Failed to connect to MSD daemon", e)
         }
     }
 

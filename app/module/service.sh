@@ -17,4 +17,8 @@ ps -efZ > "${log_dir}"/ps.log
 
 dmesg > "${log_dir}"/dmesg.log
 
+ls -lZR /config/usb_gadget > "${log_dir}"/configfs.log
+
+cp /proc/self/mountinfo "${log_dir}"/mountinfo.log
+
 logcat -s msd-tool > "${log_dir}"/msd-tool.log
