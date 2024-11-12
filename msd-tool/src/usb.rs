@@ -13,12 +13,9 @@ use std::{
 };
 
 use anyhow::{anyhow, bail, Context, Result};
-use cap_std::{
-    ambient_authority,
-    fs::{Dir, MetadataExt},
-};
+use cap_std::{ambient_authority, fs::Dir};
 use rustix::{
-    fs::{AtFlags, Gid, Uid},
+    fs::{Access, AtFlags, Gid, Uid},
     io::Errno,
 };
 
@@ -133,17 +130,22 @@ impl UsbGadget {
     pub fn new(root: impl Into<PathBuf>, config_name: impl Into<OsString>) -> Result<Self> {
         let root = root.into();
         let config_name = config_name.into();
-        let dir = open_configfs_dir(&root)?;
 
-        let metadata = dir
-            .dir_metadata()
-            .with_context(|| format!("Failed to stat directory: {root:?}"))?;
-        if metadata.uid() == 0 && metadata.gid() == 0 {
+        let (Some(parent_path), Some(name)) = (root.parent(), root.file_name()) else {
+            bail!("Failed to split path: {root:?}");
+        };
+
+        let name = Path::new(name);
+        let parent = open_configfs_dir(parent_path)?;
+
+        if rustix::fs::accessat(&parent, name, Access::WRITE_OK, AtFlags::empty()).is_err() {
             // Older devices without the gadget HAL might leave the files owned
             // by root because the USB config switching is done by init scripts
             // that have root privileges.
-            chown_configfs_dir_to_rugid(&root, &dir, Path::new("."))?;
+            chown_configfs_dir_to_rugid(parent_path, &parent, name)?;
         }
+
+        let dir = open_configfs_rel_dir(parent_path, &parent, name)?;
 
         Ok(Self {
             root,
