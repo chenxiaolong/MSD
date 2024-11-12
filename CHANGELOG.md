@@ -9,6 +9,8 @@
 
 ### Unreleased
 
+* Capture configfs permission and mount point information in debug logs ([PR #22])
+
 ### Version 1.6
 
 * Fix compatibility with KernelSU ([Issue #17], [PR #18])
@@ -62,3 +64,4 @@
 [PR #16]: https://github.com/chenxiaolong/MSD/pull/16
 [PR #18]: https://github.com/chenxiaolong/MSD/pull/18
 [PR #20]: https://github.com/chenxiaolong/MSD/pull/20
+[PR #22]: https://github.com/chenxiaolong/MSD/pull/22
