@@ -7,6 +7,8 @@
     to update the actual links at the bottom of the file.
 -->
 
+### Unreleased
+
 ### Version 1.7
 
 * Capture configfs permission and mount point information in debug logs ([PR #22])
