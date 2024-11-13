@@ -11,6 +11,7 @@
 
 * Capture configfs permission and mount point information in debug logs ([PR #22])
 * Improve logic for detecting when configfs permissions need to be changed ([Issue #21], [PR #23])
+* Enable predictive back gestures ([PR #24])
 
 ### Version 1.6
 
@@ -68,3 +69,4 @@
 [PR #20]: https://github.com/chenxiaolong/MSD/pull/20
 [PR #22]: https://github.com/chenxiaolong/MSD/pull/22
 [PR #23]: https://github.com/chenxiaolong/MSD/pull/23
+[PR #24]: https://github.com/chenxiaolong/MSD/pull/24
