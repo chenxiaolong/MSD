@@ -10,6 +10,7 @@
 ### Unreleased
 
 * Capture configfs permission and mount point information in debug logs ([PR #22])
+* Improve logic for detecting when configfs permissions need to be changed ([Issue #21], [PR #23])
 
 ### Version 1.6
 
@@ -51,6 +52,7 @@
 [Issue #12]: https://github.com/chenxiaolong/MSD/issues/12
 [Issue #17]: https://github.com/chenxiaolong/MSD/issues/17
 [Issue #19]: https://github.com/chenxiaolong/MSD/issues/19
+[Issue #21]: https://github.com/chenxiaolong/MSD/issues/21
 [PR #1]: https://github.com/chenxiaolong/MSD/pull/1
 [PR #3]: https://github.com/chenxiaolong/MSD/pull/3
 [PR #4]: https://github.com/chenxiaolong/MSD/pull/4
@@ -65,3 +67,4 @@
 [PR #18]: https://github.com/chenxiaolong/MSD/pull/18
 [PR #20]: https://github.com/chenxiaolong/MSD/pull/20
 [PR #22]: https://github.com/chenxiaolong/MSD/pull/22
+[PR #23]: https://github.com/chenxiaolong/MSD/pull/23
