@@ -10,6 +10,7 @@
 ### Unreleased
 
 * Let Magisk/KernelSU handle mounting `/system/etc/selinux/plat_seapp_contexts` ([Issue #17], [Issue #21], [PR #25], [PR #26])
+* Update all dependencies ([PR #27])
 
 ### Version 1.7
 
@@ -76,3 +77,4 @@
 [PR #24]: https://github.com/chenxiaolong/MSD/pull/24
 [PR #25]: https://github.com/chenxiaolong/MSD/pull/25
 [PR #26]: https://github.com/chenxiaolong/MSD/pull/26
+[PR #27]: https://github.com/chenxiaolong/MSD/pull/27
