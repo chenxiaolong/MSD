@@ -9,6 +9,8 @@
 
 ### Unreleased
 
+* Let Magisk/KernelSU handle mounting `/system/etc/selinux/plat_seapp_contexts` ([Issue #17], [Issue #21], [PR #25], [PR #26])
+
 ### Version 1.7
 
 * Capture configfs permission and mount point information in debug logs ([PR #22])
@@ -72,3 +74,5 @@
 [PR #22]: https://github.com/chenxiaolong/MSD/pull/22
 [PR #23]: https://github.com/chenxiaolong/MSD/pull/23
 [PR #24]: https://github.com/chenxiaolong/MSD/pull/24
+[PR #25]: https://github.com/chenxiaolong/MSD/pull/25
+[PR #26]: https://github.com/chenxiaolong/MSD/pull/26
