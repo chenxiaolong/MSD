@@ -7,7 +7,7 @@
     to update the actual links at the bottom of the file.
 -->
 
-### Unreleased
+### Version 1.8
 
 * Let Magisk/KernelSU handle mounting `/system/etc/selinux/plat_seapp_contexts` ([Issue #17], [Issue #21], [PR #25], [PR #26])
 * Update all dependencies ([PR #27])
