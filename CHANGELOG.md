@@ -9,6 +9,8 @@
 
 ### Unreleased
 
+* Fix incorrect scale factor in icon ([PR #30])
+
 ### Version 1.8
 
 * Let Magisk/KernelSU handle mounting `/system/etc/selinux/plat_seapp_contexts` ([Issue #17], [Issue #21], [PR #25], [PR #26])
@@ -80,3 +82,4 @@
 [PR #25]: https://github.com/chenxiaolong/MSD/pull/25
 [PR #26]: https://github.com/chenxiaolong/MSD/pull/26
 [PR #27]: https://github.com/chenxiaolong/MSD/pull/27
+[PR #30]: https://github.com/chenxiaolong/MSD/pull/30
