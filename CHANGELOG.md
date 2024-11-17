@@ -9,7 +9,7 @@
 
 ### Unreleased
 
-* Fix incorrect scale factor in icon ([PR #30])
+* Fix incorrect scale factor in icon and rebase off latest material security key icon ([PR #30], [PR #31])
 
 ### Version 1.8
 
@@ -83,3 +83,4 @@
 [PR #26]: https://github.com/chenxiaolong/MSD/pull/26
 [PR #27]: https://github.com/chenxiaolong/MSD/pull/27
 [PR #30]: https://github.com/chenxiaolong/MSD/pull/30
+[PR #31]: https://github.com/chenxiaolong/MSD/pull/31
