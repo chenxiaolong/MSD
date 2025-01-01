@@ -10,6 +10,7 @@
 ### Unreleased
 
 * Fix incorrect scale factor in icon and rebase off latest material security key icon ([PR #30], [PR #31])
+* Show local filesystem path instead of the URI in the device list ([Issue #28], [PR #34])
 
 ### Version 1.8
 
@@ -63,6 +64,7 @@
 [Issue #17]: https://github.com/chenxiaolong/MSD/issues/17
 [Issue #19]: https://github.com/chenxiaolong/MSD/issues/19
 [Issue #21]: https://github.com/chenxiaolong/MSD/issues/21
+[Issue #28]: https://github.com/chenxiaolong/MSD/issues/28
 [PR #1]: https://github.com/chenxiaolong/MSD/pull/1
 [PR #3]: https://github.com/chenxiaolong/MSD/pull/3
 [PR #4]: https://github.com/chenxiaolong/MSD/pull/4
@@ -84,3 +86,4 @@
 [PR #27]: https://github.com/chenxiaolong/MSD/pull/27
 [PR #30]: https://github.com/chenxiaolong/MSD/pull/30
 [PR #31]: https://github.com/chenxiaolong/MSD/pull/31
+[PR #34]: https://github.com/chenxiaolong/MSD/pull/34
