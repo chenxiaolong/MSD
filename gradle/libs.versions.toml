@@ -1,13 +1,13 @@
 [versions]
-android-gradle-plugin = "8.6.1"
+android-gradle-plugin = "8.7.3"
 androidx-activity = "1.9.3"
 androidx-appcompat = "1.7.0"
 androidx-core = "1.15.0"
 androidx-fragment = "1.8.5"
 androidx-preference = "1.2.1"
-jgit = "7.0.0.202409031743-r"
+jgit = "7.1.0.202411261347-r"
 json = "20240303"
-kotlin = "2.0.21"
+kotlin = "2.1.0"
 material = "1.12.0"
 
 [libraries]

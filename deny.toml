@@ -13,7 +13,7 @@ allow = [
     "ISC",
     "LGPL-2.1",
     "MIT",
-    "Unicode-DFS-2016",
+    "Unicode-3.0",
 ]
 
 [bans]
