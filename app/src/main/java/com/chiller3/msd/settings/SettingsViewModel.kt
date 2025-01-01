@@ -50,6 +50,7 @@ private val Throwable.alertMessage: String
 
 data class UiDeviceInfo(
     val uri: Uri,
+    val localPath: String?,
     val type: DeviceType,
     val enabled: Boolean,
 )
@@ -156,7 +157,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                         Log.w(TAG, "Failed to query path of ${device.uri}", e)
                         // Ignore this. The backing file likely got deleted. The user will get an
                         // error message when they try to use this file.
-                        ""
+                        null
                     }
 
                     // Given how low the kernel/hardware limit is for the number of mass storage
@@ -164,7 +165,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                     val activeDevice = activeDevices.find { it.uri.toFile().toString() == path }
                     val deviceType = activeDevice?.type ?: device.type
 
-                    devices.add(UiDeviceInfo(device.uri, deviceType, activeDevice != null))
+                    devices.add(UiDeviceInfo(
+                        uri = device.uri,
+                        localPath = path,
+                        type = deviceType,
+                        enabled = activeDevice != null,
+                    ))
                 }
 
                 _activeFunctions.update { functions }
@@ -188,11 +194,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 if (index >= 0) {
                     newDevices[index] = newDevices[index].copy(type = deviceType)
                 } else {
-                    try {
+                    val path = try {
                         withContext(Dispatchers.IO) {
                             openFd(uri, "r").use {
                                 rejectAppFuse(getLocalPath(it))
                                 ensureRegularFile(it)
+                                getLocalPath(it)
                             }
                         }
                     } catch (e: Exception) {
@@ -201,7 +208,12 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                         return@withLockedUi
                     }
 
-                    newDevices.add(UiDeviceInfo(uri, deviceType, true))
+                    newDevices.add(UiDeviceInfo(
+                        uri = uri,
+                        localPath = path,
+                        type = deviceType,
+                        enabled = true,
+                    ))
 
                     context.contentResolver.takePersistableUriPermission(
                         uri,

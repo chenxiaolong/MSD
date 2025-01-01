@@ -376,7 +376,7 @@ class SettingsFragment : PreferenceFragmentCompat(), FragmentResultListener,
                     DeviceType.DISK_RO -> getString(R.string.pref_device_name_disk_ro)
                     DeviceType.DISK_RW -> getString(R.string.pref_device_name_disk_rw)
                 }
-                summary = device.uri.formattedString
+                summary = device.localPath ?: device.uri.formattedString
                 isIconSpaceReserved = false
                 isPersistent = false
                 isChecked = device.enabled
