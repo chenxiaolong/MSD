@@ -7,7 +7,7 @@
     to update the actual links at the bottom of the file.
 -->
 
-### Unreleased
+### Version 1.9
 
 * Fix incorrect scale factor in icon and rebase off latest material security key icon ([PR #30], [PR #31])
 * Show local filesystem path instead of the URI in the device list ([Issue #28], [PR #34])
