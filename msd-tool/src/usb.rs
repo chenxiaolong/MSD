@@ -15,7 +15,7 @@ use std::{
 use anyhow::{anyhow, bail, Context, Result};
 use cap_std::{ambient_authority, fs::Dir};
 use rustix::{
-    fs::{Access, AtFlags, Gid, Uid},
+    fs::{AtFlags, Gid, Uid},
     io::Errno,
 };
 
@@ -138,12 +138,10 @@ impl UsbGadget {
         let name = Path::new(name);
         let parent = open_configfs_dir(parent_path)?;
 
-        if rustix::fs::accessat(&parent, name, Access::WRITE_OK, AtFlags::empty()).is_err() {
-            // Older devices without the gadget HAL might leave the files owned
-            // by root because the USB config switching is done by init scripts
-            // that have root privileges.
-            chown_configfs_dir_to_rugid(parent_path, &parent, name)?;
-        }
+        // Older devices without the gadget HAL might leave the files owned by
+        // root because the USB config switching is done by init scripts that
+        // have root privileges.
+        chown_configfs_dir_to_rugid(parent_path, &parent, name)?;
 
         let dir = open_configfs_rel_dir(parent_path, &parent, name)?;
 
