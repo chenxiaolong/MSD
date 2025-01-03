@@ -9,6 +9,8 @@
 
 ### Unreleased
 
+* Unconditionally chown the USB gadget configfs directory for better device compatibility ([Issue #36], [PR #37])
+
 ### Version 1.9
 
 * Fix incorrect scale factor in icon and rebase off latest material security key icon ([PR #30], [PR #31])
@@ -68,6 +70,7 @@
 [Issue #19]: https://github.com/chenxiaolong/MSD/issues/19
 [Issue #21]: https://github.com/chenxiaolong/MSD/issues/21
 [Issue #28]: https://github.com/chenxiaolong/MSD/issues/28
+[Issue #36]: https://github.com/chenxiaolong/MSD/issues/36
 [PR #1]: https://github.com/chenxiaolong/MSD/pull/1
 [PR #3]: https://github.com/chenxiaolong/MSD/pull/3
 [PR #4]: https://github.com/chenxiaolong/MSD/pull/4
@@ -91,3 +94,4 @@
 [PR #31]: https://github.com/chenxiaolong/MSD/pull/31
 [PR #34]: https://github.com/chenxiaolong/MSD/pull/34
 [PR #35]: https://github.com/chenxiaolong/MSD/pull/35
+[PR #37]: https://github.com/chenxiaolong/MSD/pull/37
