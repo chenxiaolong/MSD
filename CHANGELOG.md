@@ -7,7 +7,7 @@
     to update the actual links at the bottom of the file.
 -->
 
-### Unreleased
+### Version 1.10
 
 * Unconditionally chown the USB gadget configfs directory for better device compatibility ([Issue #36], [PR #37])
 
