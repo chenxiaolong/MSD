@@ -10,6 +10,7 @@ import android.content.DialogInterface
 import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
+import androidx.core.os.BundleCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
@@ -50,7 +51,7 @@ open class DeviceDialogFragment : DialogFragment() {
     data class RemoveDevice(val uri: Uri) : Action
 
     private val device by lazy {
-        requireArguments().getParcelable(ARG_DEVICE, DeviceInfo::class.java)
+        BundleCompat.getParcelable(requireArguments(), ARG_DEVICE, DeviceInfo::class.java)
     }
     private val items by lazy {
         mutableListOf<Pair<Action, String>>().apply {

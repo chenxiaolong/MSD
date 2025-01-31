@@ -13,6 +13,7 @@ import android.os.Parcelable
 import android.provider.DocumentsContract
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.os.BundleCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
@@ -126,8 +127,10 @@ class SettingsFragment : PreferenceFragmentCompat(), FragmentResultListener,
         setPreferencesFromResource(R.xml.preferences_root, rootKey)
 
         if (savedInstanceState != null) {
-            partialState = savedInstanceState.getParcelable(
-                KEY_PARTIAL_STATE, PartialState::class.java
+            partialState = BundleCompat.getParcelable(
+                savedInstanceState,
+                KEY_PARTIAL_STATE,
+                PartialState::class.java,
             )
         }
 
@@ -206,8 +209,11 @@ class SettingsFragment : PreferenceFragmentCompat(), FragmentResultListener,
 
         when (requestKey) {
             DeviceDialogFragment.TAG -> {
-                val action = result.getParcelable(DeviceDialogFragment.RESULT_ACTION,
-                    DeviceDialogFragment.Action::class.java)
+                val action = BundleCompat.getParcelable(
+                    result,
+                    DeviceDialogFragment.RESULT_ACTION,
+                    DeviceDialogFragment.Action::class.java,
+                )
 
                 when (action) {
                     is DeviceDialogFragment.AddDevice -> {

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Andrew Gunnerson
+// SPDX-FileCopyrightText: 2024-2025 Andrew Gunnerson
 // SPDX-License-Identifier: GPL-3.0-only
 
 use std::{
@@ -117,17 +117,28 @@ pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
     let t_hal_usb_gadget_impl = match t!("hal_usb_gadget_impl") {
         Ok(t) => t,
         // Allow us to run an arbitrary process as a fake "HAL" in the emulator.
-        Err(e) => t!("su").map_err(|_| e)?,
+        Err(e) => {
+            eprintln!("{e}; allowing fake HAL running in su context for debugging");
+            t!("su")?
+        }
     };
     let t_init = t!("init")?;
     let t_kernel = t!("kernel")?;
     let t_mediaprovider = t!("mediaprovider")?;
     let t_mediaprovider_app = t!("mediaprovider_app")?;
     let t_mlstrustedsubject = t!("mlstrustedsubject")?;
+    let t_platform_app = t!("platform_app")?;
     let t_selinuxfs = t!("selinuxfs")?;
     let t_shell = t!("shell")?;
     let t_system_file = t!("system_file")?;
-    let t_usb_control_prop = t!("usb_control_prop")?;
+    let t_usb_control_prop = match t!("usb_control_prop") {
+        Ok(t) => t,
+        // https://android.googlesource.com/platform/system/sepolicy/+/dc1e5019d6888d15c4d66d435237ee4f64d44af1
+        Err(e) => {
+            eprintln!("{e}; assuming old version of Android");
+            t!("exported2_system_prop")?
+        }
+    };
 
     let c_capability = c!("capability")?;
     let p_capability_chown = p!(c_capability, "chown")?;
@@ -179,18 +190,28 @@ pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
     // Make msd_app a copy of untrusted_app.
 
     let t_source = t!(n_source_type)?;
-    let t_source_uffd = t!(n_source_uffd_type)?;
     let t_target = pdb.create_type(n_target_type, false)?.0;
-    let t_target_uffd = pdb.create_type(n_target_uffd_type, false)?.0;
 
     pdb.copy_roles(t_source, t_target)?;
-    pdb.copy_roles(t_source_uffd, t_target_uffd)?;
-
     pdb.copy_attributes(t_source, t_target)?;
-    pdb.copy_attributes(t_source_uffd, t_target_uffd)?;
-
     pdb.copy_constraints(t_source, t_target);
-    pdb.copy_constraints(t_source_uffd, t_target_uffd);
+
+    // https://android.googlesource.com/platform/system/sepolicy/+/06edcd8250a249192981c7fbeea196249394b9ad
+    let t_uffd = match t!(n_source_uffd_type) {
+        Ok(t_source_uffd) => {
+            let (t_target_uffd, _) = pdb.create_type(n_target_uffd_type, false)?;
+
+            pdb.copy_roles(t_source_uffd, t_target_uffd)?;
+            pdb.copy_attributes(t_source_uffd, t_target_uffd)?;
+            pdb.copy_constraints(t_source_uffd, t_target_uffd);
+
+            Some((t_source_uffd, t_target_uffd))
+        }
+        Err(e) => {
+            eprintln!("{e}; assuming old version of Android");
+            None
+        }
+    };
 
     pdb.copy_avtab_rules(Box::new(move |source_type, target_type, class| {
         let mut new_source_type = None;
@@ -198,14 +219,18 @@ pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
 
         if source_type == t_source {
             new_source_type = Some(t_target);
-        } else if source_type == t_source_uffd {
-            new_source_type = Some(t_target_uffd);
+        } else if let Some((t_source_uffd, t_target_uffd)) = t_uffd {
+            if source_type == t_source_uffd {
+                new_source_type = Some(t_target_uffd);
+            }
         }
 
         if target_type == t_source {
             new_target_type = Some(t_target);
-        } else if target_type == t_source_uffd {
-            new_target_type = Some(t_target_uffd);
+        } else if let Some((t_source_uffd, t_target_uffd)) = t_uffd {
+            if target_type == t_source_uffd {
+                new_target_type = Some(t_target_uffd);
+            }
         }
 
         if new_source_type.is_none() && new_target_type.is_none() {
@@ -359,10 +384,24 @@ pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
     // Allow the daemon to read files on FUSE filesystems. This also allows the
     // mass storage driver to access the files (it uses the daemon's context).
     for target in [
-        // SAF authority: com.android.providers.downloads.documents.
+        // Process: android.process.media
+        // SAF authorities:
+        //   - com.android.providers.downloads.documents [Android 11-15]
+        //     (When opening MSD's own files without msf: document ID)
         t_mediaprovider,
-        // SAF authority: com.android.externalstorage.documents.
+
+        // Process: com.android.providers.media.module
+        // SAF authorities:
+        //   - com.android.externalstorage.documents [Android 12-15]
+        //   - com.android.providers.downloads.documents [Android 11-15]
+        //     (When opening other apps' files with msf: document ID)
+        //   - com.android.providers.media.documents [Android 11-15]
         t_mediaprovider_app,
+
+        // Process: com.android.externalstorage
+        // SAF authorities:
+        //   - com.android.externalstorage.documents [Android 11]
+        t_platform_app,
     ] {
         pdb.set_rule(t_daemon, target, c_fd, p_fd_use, RuleAction::Allow);
     }

@@ -22,9 +22,9 @@ else
     # Installing via Magisk Manager.
 
     api_ver=$(getprop ro.build.version.sdk)
-    if [ "${api_ver}" -lt 33 ]; then
+    if [ "${api_ver}" -lt 30 ]; then
         ui_print 'The Android version on this device is too old'
-        ui_print 'Required: SDK >=33 (Android >=13)'
+        ui_print 'Required: SDK >=30 (Android >=11)'
         ui_print "Current: SDK ${api_ver}"
         exit 1
     fi

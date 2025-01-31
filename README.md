@@ -13,7 +13,7 @@ MSD is installed as a Magisk/KernelSU module so that it can run with system app 
 
 ## Features
 
-* Supports Android 13 and newer
+* Supports Android 11 and newer
 * Supports emulating multiple mass storage devices at the same time
   * Including mixing and matching CD-ROM and disk devices
 * Does not interfere with ADB, MTP, or any other normal USB functionality

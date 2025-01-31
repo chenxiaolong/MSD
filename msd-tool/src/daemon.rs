@@ -370,7 +370,7 @@ pub fn subcommand_daemon(_cli: &DaemonCli) -> Result<()> {
                 info!("Received connection");
 
                 if let Err(e) = handle_client(stream) {
-                    error!("Thread failed: {e}");
+                    error!("Thread failed: {e:?}");
                 }
             });
         }

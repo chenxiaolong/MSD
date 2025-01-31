@@ -121,7 +121,7 @@ android {
 
     defaultConfig {
         applicationId = "com.chiller3.msd"
-        minSdk = 33
+        minSdk = 30
         targetSdk = 35
         versionCode = gitVersionCode
         versionName = gitVersionName
