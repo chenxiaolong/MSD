@@ -10,6 +10,7 @@
 ### Unreleased
 
 * Reduce minimum supported OS version from Android 13 to Android 11 ([Issue #39], [PR #40])
+* Update all dependencies ([PR #41])
 
 ### Version 1.10
 
@@ -101,3 +102,4 @@
 [PR #35]: https://github.com/chenxiaolong/MSD/pull/35
 [PR #37]: https://github.com/chenxiaolong/MSD/pull/37
 [PR #40]: https://github.com/chenxiaolong/MSD/pull/40
+[PR #41]: https://github.com/chenxiaolong/MSD/pull/41
