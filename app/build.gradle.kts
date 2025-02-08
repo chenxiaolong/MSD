@@ -210,6 +210,14 @@ val archive = tasks.register("archive") {
     }
 }
 
+// https://github.com/gradle/gradle/issues/12247
+class LazyString(private val source: Lazy<String>) : java.io.Serializable {
+    constructor(source: () -> String) : this(lazy(source))
+    constructor(source: Provider<String>) : this(source::get)
+
+    override fun toString() = source.value
+}
+
 var msdToolTasks = mutableMapOf<String, TaskProvider<Exec>>()
 
 for ((target, abi) in listOf(
@@ -230,14 +238,15 @@ for ((target, abi) in listOf(
         )
         inputs.properties(
             "android.defaultConfig.minSdk" to android.defaultConfig.minSdk,
-            "android.ndkDirectory" to android.ndkDirectory,
+            "androidComponents.sdkComponents.ndkDirectory" to
+                    androidComponents.sdkComponents.ndkDirectory.map { it.asFile.absolutePath },
         )
         outputs.files(
             File(File(File(File(rootDir, "target"), target), "release"), "msd-tool")
         )
 
         executable = "cargo"
-        args = listOf(
+        args(
             "android",
             "build",
             "--release",
@@ -245,7 +254,8 @@ for ((target, abi) in listOf(
             target,
         )
         environment(
-            "ANDROID_NDK_ROOT" to android.ndkDirectory,
+            "ANDROID_NDK_ROOT" to LazyString(androidComponents.sdkComponents.ndkDirectory
+                .map { it.asFile.absolutePath }),
             "ANDROID_API" to android.defaultConfig.minSdk,
             "RUSTFLAGS" to "-C strip=symbols -C target-feature=+crt-static",
         )

@@ -14,10 +14,10 @@ jobs:
           submodules: true
 
       - name: Validate gradle wrapper checksum
-        uses: gradle/actions/wrapper-validation@0bdd871935719febd78681f197cd39af5b6e16a6 # v4.2.2
+        uses: gradle/actions/wrapper-validation@94baf225fe0a508e581a564467443d0e2379123b # v4.3.0
 
       - name: Set up JDK 21
-        uses: actions/setup-java@7a6d8a8234af8eb26422e24e3006232cccaa061b # v4.6.0
+        uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 # v4.7.0
         with:
           distribution: 'temurin'
           java-version: 21
@@ -39,12 +39,6 @@ jobs:
       - name: Cache Rust dependencies
         uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
 
-      # We currently use the old eagerly evaluated android.ndkDirectory value in
-      # app/build.gradle.kts instead of the new lazily evaluated
-      # androidComponents.sdkComponents.ndkDirectory because the latter doesn't
-      # actually work (provider contains no value). However, because of this,
-      # AGP's automatic NDK installation breaks, so we need to manually install
-      # it here.
       - name: Install Android NDK
         shell: bash
         run: |
