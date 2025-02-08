@@ -9,6 +9,8 @@
 
 ### Unreleased
 
+* Reduce minimum supported OS version from Android 13 to Android 11 ([Issue #39], [PR #40])
+
 ### Version 1.10
 
 * Unconditionally chown the USB gadget configfs directory for better device compatibility ([Issue #36], [PR #37])
@@ -73,6 +75,7 @@
 [Issue #21]: https://github.com/chenxiaolong/MSD/issues/21
 [Issue #28]: https://github.com/chenxiaolong/MSD/issues/28
 [Issue #36]: https://github.com/chenxiaolong/MSD/issues/36
+[Issue #39]: https://github.com/chenxiaolong/MSD/issues/39
 [PR #1]: https://github.com/chenxiaolong/MSD/pull/1
 [PR #3]: https://github.com/chenxiaolong/MSD/pull/3
 [PR #4]: https://github.com/chenxiaolong/MSD/pull/4
@@ -97,3 +100,4 @@
 [PR #34]: https://github.com/chenxiaolong/MSD/pull/34
 [PR #35]: https://github.com/chenxiaolong/MSD/pull/35
 [PR #37]: https://github.com/chenxiaolong/MSD/pull/37
+[PR #40]: https://github.com/chenxiaolong/MSD/pull/40
