@@ -7,7 +7,7 @@
     to update the actual links at the bottom of the file.
 -->
 
-### Unreleased
+### Version 1.11
 
 * Reduce minimum supported OS version from Android 13 to Android 11 ([Issue #39], [PR #40])
 * Update all dependencies ([PR #41])
