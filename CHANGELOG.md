@@ -11,6 +11,7 @@
 
 * Add support for resizing writable disk images ([Issue #42], [PR #43])
   * Note that this only resizes the raw image. It is still necessary to manually repartition or resize the filesystems inside the image.
+* Update all dependencies ([PR #44])
 
 ### Version 1.11
 
@@ -110,3 +111,4 @@
 [PR #40]: https://github.com/chenxiaolong/MSD/pull/40
 [PR #41]: https://github.com/chenxiaolong/MSD/pull/41
 [PR #43]: https://github.com/chenxiaolong/MSD/pull/43
+[PR #44]: https://github.com/chenxiaolong/MSD/pull/44
