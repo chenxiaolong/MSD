@@ -7,7 +7,7 @@
     to update the actual links at the bottom of the file.
 -->
 
-### Unreleased
+### Version 1.12
 
 * Add support for resizing writable disk images ([Issue #42], [PR #43])
   * Note that this only resizes the raw image. It is still necessary to manually repartition or resize the filesystems inside the image.
