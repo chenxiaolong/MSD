@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Andrew Gunnerson
+ * SPDX-FileCopyrightText: 2024-2025 Andrew Gunnerson
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
@@ -88,7 +88,7 @@ class SettingsFragment : PreferenceFragmentCompat(), FragmentResultListener,
             partialState = null
 
             uri?.let {
-                viewModel.createDevice(it, state.size)
+                viewModel.createDevice(it, state.size, SettingsViewModel.OpenMode.CREATE)
             }
         }
 
@@ -227,7 +227,12 @@ class SettingsFragment : PreferenceFragmentCompat(), FragmentResultListener,
                         viewModel.addDevice(action.uri, action.deviceType)
                     }
                     DeviceDialogFragment.CreateDevice -> {
-                        ImageSizeDialogFragment().show(
+                        ImageSizeDialogFragment.newForCreate().show(
+                            parentFragmentManager.beginTransaction(), ImageSizeDialogFragment.TAG
+                        )
+                    }
+                    is DeviceDialogFragment.ResizeDevice -> {
+                        ImageSizeDialogFragment.newForResize(action.uri, action.existingSize).show(
                             parentFragmentManager.beginTransaction(), ImageSizeDialogFragment.TAG
                         )
                     }
@@ -239,10 +244,26 @@ class SettingsFragment : PreferenceFragmentCompat(), FragmentResultListener,
                 }
             }
             ImageSizeDialogFragment.TAG -> {
-                val size = result.getLong(ImageSizeDialogFragment.RESULT_SIZE)
-                if (size > 0) {
-                    partialState = PartialState.NewImageSizeSelected(size)
-                    requestSafCreateImage.launch("disk.img")
+                val action = BundleCompat.getParcelable(
+                    result,
+                    ImageSizeDialogFragment.RESULT_ACTION,
+                    ImageSizeDialogFragment.Action::class.java,
+                )
+
+                when (action) {
+                    is ImageSizeDialogFragment.CreateImage -> {
+                        partialState = PartialState.NewImageSizeSelected(action.size)
+                        requestSafCreateImage.launch("disk.img")
+                    }
+                    is ImageSizeDialogFragment.ResizeImage -> {
+                        viewModel.createDevice(
+                            action.uri,
+                            action.size,
+                            SettingsViewModel.OpenMode.RESIZE,
+                        )
+                    }
+                    // Cancelled.
+                    null -> {}
                 }
             }
         }
@@ -293,7 +314,7 @@ class SettingsFragment : PreferenceFragmentCompat(), FragmentResultListener,
                 val index = preference.key.removePrefix(Preferences.PREF_DEVICE_PREFIX).toInt()
                 val device = viewModel.devices.value[index]
 
-                DeviceDialogFragment.newInstance(DeviceInfo(device.uri, device.type))
+                DeviceDialogFragment.newInstance(device)
                     .show(parentFragmentManager.beginTransaction(), DeviceDialogFragment.TAG)
                 return true
             }
@@ -402,6 +423,7 @@ class SettingsFragment : PreferenceFragmentCompat(), FragmentResultListener,
             is Alert.ReapplyRequired -> getString(R.string.alert_reapply_required)
             is Alert.NotLocalFile -> getString(R.string.alert_not_local_file)
             is Alert.CreateImageFailure -> getString(R.string.alert_create_image_failure)
+            is Alert.ResizeImageFailure -> getString(R.string.alert_resize_image_failure)
         }
 
         val details = when (alert) {
@@ -410,6 +432,7 @@ class SettingsFragment : PreferenceFragmentCompat(), FragmentResultListener,
             is Alert.ReapplyRequired -> null
             is Alert.NotLocalFile -> getString(R.string.alert_not_local_file_details)
             is Alert.CreateImageFailure -> alert.error
+            is Alert.ResizeImageFailure -> alert.error
         }
 
         // Give users a chance to read the message. LENGTH_LONG is only 2750ms.

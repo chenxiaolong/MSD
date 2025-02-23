@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    SPDX-FileCopyrightText: 2024 Andrew Gunnerson
+    SPDX-FileCopyrightText: 2024-2025 Andrew Gunnerson
     SPDX-License-Identifier: GPL-3.0-only
 -->
 <resources>
@@ -38,6 +38,7 @@
     <string name="alert_not_local_file">Failed to add image because it is not a local file.</string>
     <string name="alert_not_local_file_details">The image could not be added because it is not a local file. Even if the third party app goes through the effort to provide a file descriptor supporting random access, Android\'s limitations on reopening files prevents it from being used.</string>
     <string name="alert_create_image_failure">Failed to create new writable disk image.</string>
+    <string name="alert_resize_image_failure">Failed to resize writable disk image.</string>
 
     <!-- Add device dialog -->
     <string name="dialog_device_title_add">Add new device</string>
@@ -46,6 +47,7 @@
     <string name="dialog_device_add_disk_ro">Add existing read-only disk image</string>
     <string name="dialog_device_add_disk_rw">Add existing writable disk image</string>
     <string name="dialog_device_create_disk_rw">Create new writable disk image</string>
+    <string name="dialog_device_resize_disk_rw">Resize writable disk image</string>
     <string name="dialog_device_switch_cdrom">Switch to CD-ROM</string>
     <string name="dialog_device_switch_disk_ro">Switch to read-only disk</string>
     <string name="dialog_device_switch_disk_rw">Switch to writable disk</string>
@@ -53,5 +55,8 @@
 
     <!-- Image size dialog -->
     <string name="dialog_image_size_title">Image size</string>
-    <string name="dialog_image_size_message">The image will be created as a sparse file. The image will start consuming space on disk only after data is written to it.\n\nBoth IEC (KiB/MiB/GiB) and SI (KB/MB/GB) suffixes are supported.</string>
+    <string name="dialog_image_size_create_message">The image will be created as a sparse file. The image will start consuming space on disk only after data is written to it.</string>
+    <string name="dialog_image_size_resize_message">Resize the existing image from %1$d B. Note that this does not change the contents of the image. It will need to be manually repartitioned to make use of any extra space.</string>
+    <string name="dialog_image_size_units_message">Both IEC (KiB/MiB/GiB) and SI (KB/MB/GB) suffixes are supported.</string>
+    <string name="dialog_image_size_truncate_warning">This is smaller than the original size. Truncating the image may lead to data loss.</string>
 </resources>

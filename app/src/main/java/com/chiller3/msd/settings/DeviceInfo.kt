@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Andrew Gunnerson
+ * SPDX-FileCopyrightText: 2024-2025 Andrew Gunnerson
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
@@ -37,7 +37,7 @@ data class DeviceInfo(
             val type = try {
                 DeviceType.valueOf(rawType)
             } catch (e: IllegalArgumentException) {
-                Log.w(TAG, "Invalid device type: $rawType")
+                Log.w(TAG, "Invalid device type: $rawType", e)
                 return null
             }
 
@@ -50,3 +50,12 @@ data class DeviceInfo(
         editor.putString(prefix + PREF_SUFFIX_TYPE, type.toString())
     }
 }
+
+@Parcelize
+data class UiDeviceInfo(
+    val uri: Uri,
+    val localPath: String?,
+    val type: DeviceType,
+    val enabled: Boolean,
+    val size: Long?,
+) : Parcelable

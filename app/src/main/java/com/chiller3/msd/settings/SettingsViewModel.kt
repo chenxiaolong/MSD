@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Andrew Gunnerson
+ * SPDX-FileCopyrightText: 2024-2025 Andrew Gunnerson
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
@@ -39,6 +39,8 @@ sealed interface Alert {
     data object NotLocalFile : Alert
 
     data class CreateImageFailure(val error: String) : Alert
+
+    data class ResizeImageFailure(val error: String) : Alert
 }
 
 private val Throwable.alertMessage: String
@@ -47,13 +49,6 @@ private val Throwable.alertMessage: String
     } else {
         toSingleLineString()
     }
-
-data class UiDeviceInfo(
-    val uri: Uri,
-    val localPath: String?,
-    val type: DeviceType,
-    val enabled: Boolean,
-)
 
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
     companion object {
@@ -147,17 +142,20 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 val devices = mutableListOf<UiDeviceInfo>()
 
                 for (device in prefs.devices) {
-                    val path = try {
+                    var path: String? = null
+                    var size: Long? = null
+
+                    try {
                         withContext(Dispatchers.IO) {
                             openFd(device.uri, "r").use {
-                                getLocalPath(it)
+                                path = getLocalPath(it)
+                                size = Os.lseek(it.fileDescriptor, 0, OsConstants.SEEK_END)
                             }
                         }
                     } catch (e: Exception) {
-                        Log.w(TAG, "Failed to query path of ${device.uri}", e)
+                        Log.w(TAG, "Failed to query details of ${device.uri}", e)
                         // Ignore this. The backing file likely got deleted. The user will get an
                         // error message when they try to use this file.
-                        null
                     }
 
                     // Given how low the kernel/hardware limit is for the number of mass storage
@@ -170,6 +168,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                         localPath = path,
                         type = deviceType,
                         enabled = activeDevice != null,
+                        size = size,
                     ))
                 }
 
@@ -194,12 +193,16 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                 if (index >= 0) {
                     newDevices[index] = newDevices[index].copy(type = deviceType)
                 } else {
-                    val path = try {
+                    var path: String
+                    var size: Long
+
+                    try {
                         withContext(Dispatchers.IO) {
                             openFd(uri, "r").use {
                                 rejectAppFuse(getLocalPath(it))
                                 ensureRegularFile(it)
-                                getLocalPath(it)
+                                path = getLocalPath(it)
+                                size = Os.lseek(it.fileDescriptor, 0, OsConstants.SEEK_END)
                             }
                         }
                     } catch (e: Exception) {
@@ -213,6 +216,7 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                         localPath = path,
                         type = deviceType,
                         enabled = true,
+                        size = size,
                     ))
 
                     context.contentResolver.takePersistableUriPermission(
@@ -233,18 +237,34 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun createDevice(uri: Uri, size: Long) {
+    enum class OpenMode {
+        CREATE,
+        RESIZE,
+    }
+
+    fun createDevice(uri: Uri, size: Long, mode: OpenMode) {
+        val (modeStr, createAlert) = when (mode) {
+            OpenMode.CREATE -> "rwt" to Alert::CreateImageFailure
+            // android-10.0.0_r1 is the first Android version that guaranteed that O_TRUNC is only
+            // passed when 't' is present for "w" vs "wt" [1]. However, "rw" has never truncated
+            // since the very beginning [2].
+            //
+            // [1] https://android.googlesource.com/platform/frameworks/base/+/63280e06fc64672ab36d14f852b13df2274cc328%5E!/
+            // [2] https://android.googlesource.com/platform/frameworks/base/+/9066cfe9886ac131c34d59ed0e2d287b0e3c0087%5E!/
+            OpenMode.RESIZE -> "rw" to Alert::ResizeImageFailure
+        }
+
         viewModelScope.launch {
             withLockedUi {
                 try {
                     withContext(Dispatchers.IO) {
-                        openFd(uri, "rwt").use {
+                        openFd(uri, modeStr).use {
                             Os.ftruncate(it.fileDescriptor, size)
                         }
                     }
                 } catch (e: Exception) {
-                    Log.e(TAG, "Failed to create image: $uri", e)
-                    _alerts.update { it + Alert.CreateImageFailure(e.toSingleLineString()) }
+                    Log.e(TAG, "Failed to truncate image: $uri", e)
+                    _alerts.update { it + createAlert(e.toSingleLineString()) }
                     return@withLockedUi
                 }
 

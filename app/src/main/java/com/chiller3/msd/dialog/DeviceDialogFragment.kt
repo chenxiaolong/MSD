@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Andrew Gunnerson
+ * SPDX-FileCopyrightText: 2024-2025 Andrew Gunnerson
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
@@ -15,8 +15,8 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
 import com.chiller3.msd.R
-import com.chiller3.msd.settings.DeviceInfo
 import com.chiller3.msd.settings.DeviceType
+import com.chiller3.msd.settings.UiDeviceInfo
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.parcelize.Parcelize
 
@@ -27,7 +27,7 @@ open class DeviceDialogFragment : DialogFragment() {
         private const val ARG_DEVICE = "device"
         const val RESULT_ACTION = "action"
 
-        fun newInstance(device: DeviceInfo?): DeviceDialogFragment =
+        fun newInstance(device: UiDeviceInfo?): DeviceDialogFragment =
             DeviceDialogFragment().apply {
                 arguments = bundleOf(
                     ARG_DEVICE to device,
@@ -48,10 +48,13 @@ open class DeviceDialogFragment : DialogFragment() {
     data object CreateDevice : Action
 
     @Parcelize
+    data class ResizeDevice(val uri: Uri, val existingSize: Long) : Action
+
+    @Parcelize
     data class RemoveDevice(val uri: Uri) : Action
 
     private val device by lazy {
-        BundleCompat.getParcelable(requireArguments(), ARG_DEVICE, DeviceInfo::class.java)
+        BundleCompat.getParcelable(requireArguments(), ARG_DEVICE, UiDeviceInfo::class.java)
     }
     private val items by lazy {
         mutableListOf<Pair<Action, String>>().apply {
@@ -69,6 +72,9 @@ open class DeviceDialogFragment : DialogFragment() {
                 if (device.type != DeviceType.DISK_RW) {
                     add(ChangeDevice(device.uri, DeviceType.DISK_RW) to
                             getString(R.string.dialog_device_switch_disk_rw))
+                } else if (device.size != null) {
+                    add(ResizeDevice(device.uri, device.size) to
+                            getString(R.string.dialog_device_resize_disk_rw))
                 }
                 add(RemoveDevice(device.uri) to getString(R.string.dialog_device_delete))
             } else {
