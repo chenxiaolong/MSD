@@ -9,6 +9,9 @@
 
 ### Unreleased
 
+* Add support for resizing writable disk images ([Issue #42], [PR #43])
+  * Note that this only resizes the raw image. It is still necessary to manually repartition or resize the filesystems inside the image.
+
 ### Version 1.11
 
 * Reduce minimum supported OS version from Android 13 to Android 11 ([Issue #39], [PR #40])
@@ -79,6 +82,7 @@
 [Issue #28]: https://github.com/chenxiaolong/MSD/issues/28
 [Issue #36]: https://github.com/chenxiaolong/MSD/issues/36
 [Issue #39]: https://github.com/chenxiaolong/MSD/issues/39
+[Issue #42]: https://github.com/chenxiaolong/MSD/issues/42
 [PR #1]: https://github.com/chenxiaolong/MSD/pull/1
 [PR #3]: https://github.com/chenxiaolong/MSD/pull/3
 [PR #4]: https://github.com/chenxiaolong/MSD/pull/4
@@ -105,3 +109,4 @@
 [PR #37]: https://github.com/chenxiaolong/MSD/pull/37
 [PR #40]: https://github.com/chenxiaolong/MSD/pull/40
 [PR #41]: https://github.com/chenxiaolong/MSD/pull/41
+[PR #43]: https://github.com/chenxiaolong/MSD/pull/43
