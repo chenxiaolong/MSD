@@ -125,14 +125,14 @@ android {
         targetSdk = 35
         versionCode = gitVersionCode
         versionName = gitVersionName
-        resourceConfigurations.addAll(listOf(
-            "en",
-        ))
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField("String", "PROJECT_URL_AT_COMMIT",
             "\"${projectUrl}/tree/${gitVersionTriple.third.name}\"")
+    }
+    androidResources {
+        generateLocaleConfig = true
     }
     sourceSets {
         getByName("main") {
