@@ -7,7 +7,7 @@
     to update the actual links at the bottom of the file.
 -->
 
-### Unreleased
+### Version 1.13
 
 * Add Persian translations ([PR #49])
 * Update all dependencies ([PR #50])
