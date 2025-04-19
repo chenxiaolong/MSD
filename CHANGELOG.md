@@ -9,6 +9,8 @@
 
 ### Unreleased
 
+* Add Persian translations ([PR #49])
+
 ### Version 1.12
 
 * Add support for resizing writable disk images ([Issue #42], [PR #43])
@@ -114,3 +116,4 @@
 [PR #41]: https://github.com/chenxiaolong/MSD/pull/41
 [PR #43]: https://github.com/chenxiaolong/MSD/pull/43
 [PR #44]: https://github.com/chenxiaolong/MSD/pull/44
+[PR #49]: https://github.com/chenxiaolong/MSD/pull/49
