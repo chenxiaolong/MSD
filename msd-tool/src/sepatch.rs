@@ -389,7 +389,6 @@ pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
         //   - com.android.providers.downloads.documents [Android 11-15]
         //     (When opening MSD's own files without msf: document ID)
         t_mediaprovider,
-
         // Process: com.android.providers.media.module
         // SAF authorities:
         //   - com.android.externalstorage.documents [Android 12-15]
@@ -397,7 +396,6 @@ pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
         //     (When opening other apps' files with msf: document ID)
         //   - com.android.providers.media.documents [Android 11-15]
         t_mediaprovider_app,
-
         // Process: com.android.externalstorage
         // SAF authorities:
         //   - com.android.externalstorage.documents [Android 11]

@@ -14,10 +14,10 @@ jobs:
           submodules: true
 
       - name: Validate gradle wrapper checksum
-        uses: gradle/actions/wrapper-validation@94baf225fe0a508e581a564467443d0e2379123b # v4.3.0
+        uses: gradle/actions/wrapper-validation@06832c7b30a0129d7fb559bcc6e43d26f6374244 # v4.3.1
 
       - name: Set up JDK 21
-        uses: actions/setup-java@3a4f6e1af504cf6a31855fa899c6aa5355ba6c12 # v4.7.0
+        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
         with:
           distribution: 'temurin'
           java-version: 21
@@ -37,14 +37,7 @@ jobs:
           rustup target add x86_64-linux-android
 
       - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@f0deed1e0edfc6a9be95417288c0e1099b1eeec3 # v2.7.7
-
-      - name: Install Android NDK
-        shell: bash
-        run: |
-          set +o pipefail
-          version=$(sed -nr -e 's/^\s*ndkVersion\s*=\s"(.+)".*$/\1/p' app/build.gradle.kts)
-          yes | ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager "ndk;${version}"
+        uses: Swatinem/rust-cache@9d47c6ad4b02e050fd481d890b2ea34778fd09d6 # v2.7.8
 
       - name: Build and test
         # Debug build only since release builds require a signing key

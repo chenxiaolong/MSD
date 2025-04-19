@@ -10,13 +10,13 @@ anyhow = "1.0.86"
 byteorder = "1.5.0"
 cap-std = "3.1.0"
 clap = { version = "4.5.8", features = ["derive"] }
-rustix = { version = "0.38.34", features = ["fs", "net", "process", "thread"] }
+rustix = { version = "1.0.5", features = ["fs", "net", "process", "thread"] }
 tracing = "0.1.40"
 tracing-subscriber = "0.3.18"
 
 [dependencies.sepatch]
 git = "https://github.com/chenxiaolong/sepatch"
-tag = "v0.3.2"
+tag = "v0.3.3"
 
 [target.'cfg(target_os = "android")'.dependencies]
 libc = "0.2.155"

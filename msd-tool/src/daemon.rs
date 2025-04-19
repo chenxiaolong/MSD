@@ -304,8 +304,8 @@ fn drop_privileges() -> Result<()> {
     // CAP_CHROOT allowed. If we're running as root:root, then we drop all
     // capabilities besides CAP_CHROOT and drop privileges to system:system.
 
-    let system_uid = unsafe { Uid::from_raw(1000) };
-    let system_gid = unsafe { Gid::from_raw(1000) };
+    let system_uid = Uid::from_raw(1000);
+    let system_gid = Gid::from_raw(1000);
     let real_uid = rustix::process::getuid();
     let real_gid = rustix::process::getgid();
 
@@ -350,7 +350,7 @@ pub fn subcommand_daemon(_cli: &DaemonCli) -> Result<()> {
     thread::scope(|scope| -> Result<()> {
         for stream in listener.incoming() {
             let stream = stream.context("Failed to accept incoming connection")?;
-            let ucred = rustix::net::sockopt::get_socket_peercred(&stream)
+            let ucred = rustix::net::sockopt::socket_peercred(&stream)
                 .context("Failed to get socket peer credentials")?;
 
             scope.spawn(move || {

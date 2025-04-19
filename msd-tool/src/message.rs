@@ -5,6 +5,7 @@ use std::{
     collections::BTreeMap,
     ffi::OsString,
     io::{self, IoSlice, IoSliceMut, Read, Write},
+    mem::MaybeUninit,
     os::{
         fd::{AsFd, BorrowedFd, OwnedFd},
         unix::{
@@ -33,7 +34,7 @@ fn send_fds(stream: &mut UnixStream, fds: &[BorrowedFd]) -> Result<(), Errno> {
         return Ok(());
     }
 
-    let mut space = vec![0; rustix::cmsg_space!(ScmRights(fds.len()))];
+    let mut space = vec![MaybeUninit::uninit(); rustix::cmsg_space!(ScmRights(fds.len()))];
     let mut cmsg_buf = SendAncillaryBuffer::new(&mut space);
 
     if !cmsg_buf.push(SendAncillaryMessage::ScmRights(fds)) {
@@ -58,7 +59,7 @@ fn receive_fds(stream: &mut UnixStream, num_fds: usize) -> io::Result<Vec<OwnedF
         return Ok(vec![]);
     }
 
-    let mut space = vec![0; rustix::cmsg_space!(ScmRights(num_fds))];
+    let mut space = vec![MaybeUninit::uninit(); rustix::cmsg_space!(ScmRights(num_fds))];
     let mut cmsg_buf = RecvAncillaryBuffer::new(&mut space);
     let ret = rustix::net::recvmsg(
         stream,

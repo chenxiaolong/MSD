@@ -173,12 +173,12 @@ impl ProcessStopper {
 
     pub fn stop(&self) -> Result<(), Errno> {
         debug!("Sending SIGSTOP to {:?}", self.0);
-        pidfd_send_signal(&self.0, Signal::Stop)
+        pidfd_send_signal(&self.0, Signal::STOP)
     }
 
     pub fn cont(&self) -> Result<(), Errno> {
         debug!("Sending SIGCONT to {:?}", self.0);
-        pidfd_send_signal(&self.0, Signal::Cont)
+        pidfd_send_signal(&self.0, Signal::CONT)
     }
 }
 
