@@ -10,6 +10,7 @@
 ### Unreleased
 
 * Add Persian translations ([PR #49])
+* Update all dependencies ([PR #50])
 
 ### Version 1.12
 
@@ -117,3 +118,4 @@
 [PR #43]: https://github.com/chenxiaolong/MSD/pull/43
 [PR #44]: https://github.com/chenxiaolong/MSD/pull/44
 [PR #49]: https://github.com/chenxiaolong/MSD/pull/49
+[PR #50]: https://github.com/chenxiaolong/MSD/pull/50
