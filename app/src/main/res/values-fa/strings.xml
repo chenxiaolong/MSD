@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    SPDX-FileCopyrightText: 2024-2025 Andrew Gunnerson
+    SPDX-License-Identifier: GPL-3.0-only
+-->
+<resources>
+    <!-- Preference headers -->
+    <string name="pref_header_devices">دستگاه‌ها</string>
+    <string name="pref_header_usb">یو‌اس‌بی</string>
+    <string name="pref_header_about">درباره</string>
+    <string name="pref_header_debug">اشکال‌زدایی</string>
+
+    <!-- Device preferences -->
+    <string name="pref_add_device_name">افزودن دستگاه حافظه انبوه</string>
+    <string name="pref_add_device_desc">افزودن یک دستگاه جدید سی‌دی-رام، دیسک فقط‌خواندنی یا دیسک قابل‌نوشتن.</string>
+    <string name="pref_device_name_cdrom">سی‌دی-رام</string>
+    <string name="pref_device_name_disk_ro">دیسک فقط‌خواندنی</string>
+    <string name="pref_device_name_disk_rw">دیسک قابل‌نوشتن</string>
+
+    <!-- USB preferences -->
+    <string name="pref_active_functions_name">کارکردهای فعال ابزارک یو‌اس‌بی</string>
+    <string name="pref_active_functions_desc_none">(هیچ کارکرد فعالی وجود ندارد. برای تازه‌سازی فشار دهید.)</string>
+    <string name="pref_enable_mass_storage_name">به‌کار بردن تنظیمات</string>
+    <string name="pref_enable_mass_storage_desc">فعال یا غیرفعال کردن شبیه‌سازی دستگاه‌های حافظه انبوه مشخص‌شده.</string>
+
+    <!-- About "preference" -->
+    <string name="pref_version_name">نگارش</string>
+
+    <!-- Debug preferences -->
+    <string name="pref_open_log_dir_name">بازکردن پوشه گزارش‌ها</string>
+    <string name="pref_open_log_dir_desc">بازکردن پوشه گزارش‌ها در مدیر پرونده‌های سامانه (DocumentsUI).</string>
+
+    <!-- Alerts -->
+    <string name="action_details">جزئیات</string>
+    <string name="alert_query_state_failure">خطا در بررسی وضعیت هدایت‌گر یو‌اس‌بی.</string>
+    <string name="alert_apply_state_failure">خطا در پیکربندی هدایت‌گر یو‌اس‌بی.</string>
+    <string name="alert_reapply_required">تغییرات در بار بعدی که تنظیمات به‌کار برده شوند، اعمال خواهند شد.</string>
+    <string name="alert_not_local_file">خطا در افزودن تصویر زیرا پرونده محلی نیست.</string>
+    <string name="alert_not_local_file_details">تصویر افزوده نشد زیرا پرونده محلی نیست. حتی اگر برنامه شخص ثالث توصیف‌گر پرونده‌ای با دسترسی تصادفی فراهم کند، محدودیت‌های اندروید در بازگشایی پرونده‌ها مانع استفاده از آن می‌شود.</string>
+    <string name="alert_create_image_failure">خطا در ساخت تصویر دیسک قابل‌نوشتن جدید.</string>
+    <string name="alert_resize_image_failure">خطا در تغییر اندازه تصویر دیسک قابل‌نوشتن.</string>
+
+    <!-- Add device dialog -->
+    <string name="dialog_device_title_add">افزودن دستگاه جدید</string>
+    <string name="dialog_device_title_edit">ویرایش دستگاه</string>
+    <string name="dialog_device_add_cdrom">افزودن تصویر سی‌دی-رام موجود</string>
+    <string name="dialog_device_add_disk_ro">افزودن تصویر دیسک فقط‌خواندنی موجود</string>
+    <string name="dialog_device_add_disk_rw">افزودن تصویر دیسک قابل‌نوشتن موجود</string>
+    <string name="dialog_device_create_disk_rw">ساخت تصویر دیسک قابل‌نوشتن جدید</string>
+    <string name="dialog_device_resize_disk_rw">تغییر اندازه تصویر دیسک قابل‌نوشتن</string>
+    <string name="dialog_device_switch_cdrom">تغییر به سی‌دی-رام</string>
+    <string name="dialog_device_switch_disk_ro">تغییر به دیسک فقط‌خواندنی</string>
+    <string name="dialog_device_switch_disk_rw">تغییر به دیسک قابل‌نوشتن</string>
+    <string name="dialog_device_delete">پاک کردن دستگاه</string>
+
+  <!-- Image size dialog -->
+    <string name="dialog_image_size_title">اندازه تصویر</string>
+    <string name="dialog_image_size_create_message">تصویر به‌صورت پرونده کم‌حجم ساخته خواهد شد. تصویر تنها پس از نوشتن داده‌ها فضای دیسک را اشغال می‌کند.</string>
+    <string name="dialog_image_size_resize_message">تغییر اندازه تصویر موجود از %1$d بایت. توجه کنید که این کار محتوای تصویر را تغییر نمی‌دهد. برای استفاده از فضای اضافی، باید به‌صورت دستی بازپارتیشن شود.</string>
+    <string name="dialog_image_size_units_message">هر دو پسوند IEC (کیب/میب/گیب) و SI (ک‌ب/م‌ب/گ‌ب) پشتیبانی می‌شوند.</string>
+    <string name="dialog_image_size_truncate_warning">این کوچک‌تر از اندازه اصلی است. کوتاه‌سازی تصویر ممکن است به از دست رفتن داده‌ها منجر شود.</string>
+</resources>
