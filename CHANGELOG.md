@@ -7,7 +7,7 @@
     to update the actual links at the bottom of the file.
 -->
 
-### Unreleased
+### Version 1.14
 
 * Update dependencies and target API 36 ([PR #51])
 
