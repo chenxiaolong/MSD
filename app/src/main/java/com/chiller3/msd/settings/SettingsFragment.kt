@@ -6,13 +6,13 @@
 package com.chiller3.msd.settings
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.os.Parcelable
 import android.provider.DocumentsContract
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.net.toUri
 import androidx.core.os.BundleCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -327,7 +327,7 @@ class SettingsFragment : PreferenceFragmentCompat(), FragmentResultListener,
                 return true
             }
             preference === prefVersion -> {
-                val uri = Uri.parse(BuildConfig.PROJECT_URL_AT_COMMIT)
+                val uri = BuildConfig.PROJECT_URL_AT_COMMIT.toUri()
                 startActivity(Intent(Intent.ACTION_VIEW, uri))
                 return true
             }

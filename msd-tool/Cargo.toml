@@ -20,5 +20,5 @@ tag = "v0.3.3"
 
 [target.'cfg(target_os = "android")'.dependencies]
 libc = "0.2.155"
-system-properties = { git = "https://github.com/chenxiaolong/system-properties", tag = "v0.2.0" }
+system-properties = { git = "https://github.com/chenxiaolong/system-properties", tag = "v0.2.1" }
 tracing-logcat = "0.1.0"

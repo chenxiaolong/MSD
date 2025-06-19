@@ -9,6 +9,7 @@ import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Parcelable
 import android.util.Log
+import androidx.core.net.toUri
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -33,7 +34,7 @@ data class DeviceInfo(
             val rawUri = prefs.getString(prefix + PREF_SUFFIX_URI, null) ?: return null
             val rawType = prefs.getString(prefix + PREF_SUFFIX_TYPE, null) ?: return null
 
-            val uri = Uri.parse(rawUri)
+            val uri = rawUri.toUri()
             val type = try {
                 DeviceType.valueOf(rawType)
             } catch (e: IllegalArgumentException) {
