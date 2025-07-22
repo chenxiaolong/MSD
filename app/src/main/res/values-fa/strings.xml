@@ -53,6 +53,6 @@
     <string name="dialog_image_size_title">اندازه تصویر</string>
     <string name="dialog_image_size_create_message">تصویر به‌صورت پرونده کم‌حجم ساخته خواهد شد. تصویر تنها پس از نوشتن داده‌ها فضای دیسک را اشغال می‌کند.</string>
     <string name="dialog_image_size_resize_message">تغییر اندازه تصویر موجود از %1$d بایت. توجه کنید که این کار محتوای تصویر را تغییر نمی‌دهد. برای استفاده از فضای اضافی، باید به‌صورت دستی بازپارتیشن شود.</string>
-    <string name="dialog_image_size_units_message">هر دو پسوند IEC (کیب/میب/گیب) و SI (ک‌ب/م‌ب/گ‌ب) پشتیبانی می‌شوند.</string>
+    <string name="dialog_image_size_units_message">هر دو پسوند IEC (KiB/MiB/GiB) و SI (KB/MB/GB) پشتیبانی می‌شوند.</string>
     <string name="dialog_image_size_truncate_warning">این کوچک‌تر از اندازه اصلی است. کوتاه‌سازی تصویر ممکن است به از دست رفتن داده‌ها منجر شود.</string>
 </resources>
