@@ -9,6 +9,8 @@
 
 ### Unreleased
 
+* Update Persian translations ([PR #54])
+
 ### Version 1.14
 
 * Update dependencies and target API 36 ([PR #51])
@@ -126,3 +128,4 @@
 [PR #49]: https://github.com/chenxiaolong/MSD/pull/49
 [PR #50]: https://github.com/chenxiaolong/MSD/pull/50
 [PR #51]: https://github.com/chenxiaolong/MSD/pull/51
+[PR #54]: https://github.com/chenxiaolong/MSD/pull/54
