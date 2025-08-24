@@ -11,6 +11,7 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.archive.TarFormat
 import org.eclipse.jgit.lib.ObjectId
 import org.gradle.kotlin.dsl.support.uppercaseFirstChar
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.json.JSONObject
 
 plugins {
@@ -165,9 +166,6 @@ android {
         sourceCompatibility(JavaVersion.VERSION_21)
         targetCompatibility(JavaVersion.VERSION_21)
     }
-    kotlinOptions {
-        jvmTarget = "21"
-    }
     buildFeatures {
         buildConfig = true
         viewBinding = true
@@ -176,6 +174,12 @@ android {
         // The translations are always going to lag behind new strings being
         // added to values/strings.xml
         disable += "MissingTranslation"
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_21
     }
 }
 
@@ -252,7 +256,7 @@ for ((target, abi) in listOf(
             },
         )
         inputs.properties(
-            "android.defaultConfig.minSdk" to android.defaultConfig.minSdk,
+            "android.defaultConfig.minSdk" to android.defaultConfig.minSdk!!,
             "androidComponents.sdkComponents.ndkDirectory" to
                     androidComponents.sdkComponents.ndkDirectory.map { it.asFile.absolutePath },
         )
@@ -271,7 +275,7 @@ for ((target, abi) in listOf(
         environment(
             "ANDROID_NDK_ROOT" to LazyString(androidComponents.sdkComponents.ndkDirectory
                 .map { it.asFile.absolutePath }),
-            "ANDROID_API" to android.defaultConfig.minSdk,
+            "ANDROID_API" to android.defaultConfig.minSdk!!,
             "RUSTFLAGS" to "-C strip=symbols -C target-feature=+crt-static",
         )
 
@@ -533,9 +537,9 @@ tasks.register("changelogUpdateLinks") {
 }
 
 tasks.register("changelogPreRelease") {
-    doLast {
-        val version = project.property("releaseVersion")
+    val version = project.property("releaseVersion")
 
+    doLast {
         updateChangelog(version.toString(), true)
         updateModuleChangelog("v$version")
     }
