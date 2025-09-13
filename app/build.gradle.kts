@@ -175,6 +175,10 @@ android {
         // added to values/strings.xml
         disable += "MissingTranslation"
     }
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
+    }
 }
 
 kotlin {
