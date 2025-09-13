@@ -9,6 +9,7 @@
 
 ### Unreleased
 
+* Remove dependency info block from APK ([PR #56])
 * Update dependencies ([PR #57])
 
 ### Version 1.15
@@ -135,4 +136,5 @@
 [PR #51]: https://github.com/chenxiaolong/MSD/pull/51
 [PR #54]: https://github.com/chenxiaolong/MSD/pull/54
 [PR #55]: https://github.com/chenxiaolong/MSD/pull/55
+[PR #56]: https://github.com/chenxiaolong/MSD/pull/56
 [PR #57]: https://github.com/chenxiaolong/MSD/pull/57
