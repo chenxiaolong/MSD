@@ -1,14 +1,14 @@
 [versions]
-android-gradle-plugin = "8.12.1"
-androidx-activity = "1.10.1"
+android-gradle-plugin = "8.13.0"
+androidx-activity = "1.11.0"
 androidx-appcompat = "1.7.1"
 androidx-core = "1.17.0"
 androidx-fragment = "1.8.9"
 androidx-preference = "1.2.1"
 jgit = "7.3.0.202506031305-r"
 json = "20250517"
-kotlin = "2.2.10"
-material = "1.12.0"
+kotlin = "2.2.20"
+material = "1.13.0"
 
 [libraries]
 androidx-activity = { group = "androidx.activity", name = "activity-ktx", version.ref = "androidx-activity" }
