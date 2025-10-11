@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Andrew Gunnerson
+// SPDX-FileCopyrightText: 2024-2025 Andrew Gunnerson
 // SPDX-License-Identifier: GPL-3.0-only
 
 //! This module implements the daemon that runs as the system user and listens
@@ -15,10 +15,10 @@
 use std::{
     collections::BTreeMap,
     ffi::{OsStr, OsString},
-    fs::File,
+    fs::{self, File},
     io,
     os::{
-        fd::AsFd,
+        fd::{AsFd, AsRawFd},
         unix::net::{SocketAddr, UnixListener, UnixStream},
     },
     path::Path,
@@ -31,11 +31,11 @@ use std::os::android::net::SocketAddrExt;
 #[cfg(target_os = "linux")]
 use std::os::linux::net::SocketAddrExt;
 
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{Context, Result, anyhow, bail};
 use byteorder::{ReadBytesExt, WriteBytesExt};
 use clap::Parser;
 use rustix::{
-    fs::{FileType, Gid, Uid},
+    fs::{FileType, Gid, Mode, Uid},
     thread::{CapabilityFlags, CapabilitySets},
 };
 use tracing::{debug, error, info, info_span, warn};
@@ -137,9 +137,29 @@ fn handle_set_mass_storage_request(request: &SetMassStorageRequest) -> Result<()
     let _lock = LOCK.lock().unwrap();
 
     for device in &request.devices {
+        debug!("Checking device request: {device:?}");
+
+        let fd_path = format!("/proc/self/fd/{}", device.fd.as_raw_fd());
+
+        match fs::read_link(&fd_path) {
+            Ok(p) => debug!("- Path: {p:?}"),
+            Err(e) => warn!("- Path: <Unknown>: {e:?}"),
+        }
+
         let stat = rustix::fs::fstat(&device.fd)
             .with_context(|| format!("Failed to stat file: {:?}", device.fd))?;
         let file_type = FileType::from_raw_mode(stat.st_mode);
+
+        debug! {"- Type: {file_type:?}"};
+        debug! {"- Mode: {:o}", Mode::from_raw_mode(stat.st_mode)};
+        debug! {"- UID: {}", stat.st_uid};
+        debug! {"- GID: {}", stat.st_gid};
+        debug! {"- Size: {}", stat.st_size};
+
+        match util::fd_get_label(device.fd.as_fd()) {
+            Ok(l) => debug!("- Label: {l:?}"),
+            Err(e) => warn!("- Label: <Unknown>: {e:?}"),
+        }
 
         if file_type != FileType::RegularFile {
             bail!("Not a regular file: {:?}: {file_type:?}", device.fd);

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Andrew Gunnerson
+// SPDX-FileCopyrightText: 2024-2025 Andrew Gunnerson
 // SPDX-License-Identifier: GPL-3.0-only
 
 use std::{
@@ -12,7 +12,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{Context, Result, anyhow, bail};
 use cap_std::{ambient_authority, fs::Dir};
 use rustix::{
     fs::{AtFlags, Gid, Uid},
@@ -217,7 +217,7 @@ impl UsbGadget {
                 Err(e) => {
                     return Err(e).with_context(|| {
                         format!("Failed to read link: {:?}", path.join(entry.file_name()))
-                    })
+                    });
                 }
             };
 
@@ -392,34 +392,44 @@ impl MassStorageFunction {
         let name = format!("lun.{lun}");
         let path = Path::new(&name);
 
-        let mut file = read_configfs_file(&self.path, &self.dir, &path.join("file"))?;
-        let mut cdrom = read_configfs_file(&self.path, &self.dir, &path.join("cdrom"))?;
-        let mut ro = read_configfs_file(&self.path, &self.dir, &path.join("ro"))?;
+        let file_path = path.join("file");
+        let cdrom_path = path.join("cdrom");
+        let ro_path = path.join("ro");
 
-        fn pop_newline(data: &mut Vec<u8>) -> Result<()> {
+        let mut file = read_configfs_file(&self.path, &self.dir, &file_path)?;
+        let mut cdrom = read_configfs_file(&self.path, &self.dir, &cdrom_path)?;
+        let mut ro = read_configfs_file(&self.path, &self.dir, &ro_path)?;
+
+        fn pop_newline(base_path: &Path, path: &Path, data: &mut Vec<u8>) -> Result<()> {
             match data.pop() {
                 Some(b'\n') => return Ok(()),
                 Some(b) => data.push(b),
                 None => {}
             }
 
-            bail!("configfs file did not end in newline: {data:?}");
+            bail!(
+                "configfs file did not end in newline: {:?}: {data:?}",
+                base_path.join(path)
+            );
         }
 
-        pop_newline(&mut file)?;
-        pop_newline(&mut cdrom)?;
-        pop_newline(&mut ro)?;
+        pop_newline(&self.path, &file_path, &mut file)?;
+        pop_newline(&self.path, &cdrom_path, &mut cdrom)?;
+        pop_newline(&self.path, &ro_path, &mut ro)?;
 
-        fn get_bool(data: &[u8]) -> Result<bool> {
+        fn get_bool(base_path: &Path, path: &Path, data: &[u8]) -> Result<bool> {
             match data {
                 b"1" => Ok(true),
                 b"0" => Ok(false),
-                _ => bail!("configfs file did not contain boolean: {data:?}"),
+                _ => bail!(
+                    "configfs file did not contain boolean: {:?}: {data:?}",
+                    base_path.join(path),
+                ),
             }
         }
 
-        let cdrom = get_bool(&cdrom)?;
-        let ro = get_bool(&ro)?;
+        let cdrom = get_bool(&self.path, &cdrom_path, &cdrom)?;
+        let ro = get_bool(&self.path, &ro_path, &ro)?;
 
         Ok((PathBuf::from(OsString::from_vec(file)), cdrom, ro))
     }
@@ -451,7 +461,7 @@ impl MassStorageFunction {
                 format!(
                     "/proc/{}/fd/{}\n",
                     rustix::process::getpid().as_raw_nonzero(),
-                    fd.as_raw_fd()
+                    fd.as_raw_fd(),
                 )
                 .as_bytes(),
             )],

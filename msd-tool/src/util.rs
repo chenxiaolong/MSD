@@ -1,10 +1,10 @@
-// SPDX-FileCopyrightText: 2024 Andrew Gunnerson
+// SPDX-FileCopyrightText: 2024-2025 Andrew Gunnerson
 // SPDX-License-Identifier: GPL-3.0-only
 
 use std::{
     ffi::OsString,
     io,
-    os::fd::{AsFd, OwnedFd},
+    os::fd::{AsFd, BorrowedFd, OwnedFd},
     path::PathBuf,
 };
 
@@ -128,7 +128,7 @@ impl Iterator for ProcessIter {
                     if e.kind() == io::ErrorKind::NotFound
                         || e.kind() == io::ErrorKind::PermissionDenied =>
                 {
-                    continue
+                    continue;
                 }
                 Err(e) => return Some(Err(e.into())),
             };
@@ -145,7 +145,7 @@ impl Iterator for ProcessIter {
                     if e.kind() == io::ErrorKind::NotFound
                         || e.kind() == io::ErrorKind::PermissionDenied =>
                 {
-                    continue
+                    continue;
                 }
                 Err(e) => return Some(Err(e)),
             };
@@ -186,4 +186,25 @@ impl Drop for ProcessStopper {
     fn drop(&mut self) {
         let _ = self.cont();
     }
+}
+
+pub fn fd_get_label(fd: BorrowedFd) -> io::Result<String> {
+    const NAME: &str = "security.selinux";
+
+    let size = rustix::fs::fgetxattr(fd, NAME, &mut [] as &mut [u8])?;
+    let mut buf = vec![0u8; size];
+
+    let size = rustix::fs::fgetxattr(fd, NAME, &mut buf)?;
+    if size == 0 {
+        return Err(io::Error::new(io::ErrorKind::InvalidData, "xattr is empty"));
+    } else if buf[size - 1] != 0 {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidData,
+            "xattr not null-terminated",
+        ));
+    }
+
+    buf.truncate(size - 1);
+
+    String::from_utf8(buf).map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))
 }
