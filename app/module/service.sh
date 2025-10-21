@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2024 Andrew Gunnerson
+# SPDX-FileCopyrightText: 2024-2025 Andrew Gunnerson
 # SPDX-License-Identifier: GPL-3.0-only
 
 source "${0%/*}/boot_common.sh" /data/local/tmp/msd/service.log
@@ -15,10 +15,14 @@ sleep 1
 
 ps -efZ > "${log_dir}"/ps.log
 
-dmesg > "${log_dir}"/dmesg.log
+/system/bin/dmesg > "${log_dir}"/dmesg.log
 
 ls -lZR /config/usb_gadget > "${log_dir}"/configfs.log
 
 cp /proc/self/mountinfo "${log_dir}"/mountinfo.log
 
-logcat -s msd-tool > "${log_dir}"/msd-tool.log
+/system/bin/dmesg -w | grep avc: > "${log_dir}"/audit.log &
+
+logcat -s msd-tool > "${log_dir}"/msd-tool.log &
+
+wait
