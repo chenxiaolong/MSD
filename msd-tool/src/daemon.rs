@@ -146,6 +146,11 @@ fn handle_set_mass_storage_request(request: &SetMassStorageRequest) -> Result<()
             Err(e) => warn!("- Path: <Unknown>: {e:?}"),
         }
 
+        match util::fd_get_label(device.fd.as_fd()) {
+            Ok(l) => debug!("- Label: {l:?}"),
+            Err(e) => warn!("- Label: <Unknown>: {e:?}"),
+        }
+
         let stat = rustix::fs::fstat(&device.fd)
             .with_context(|| format!("Failed to stat file: {:?}", device.fd))?;
         let file_type = FileType::from_raw_mode(stat.st_mode);
@@ -155,11 +160,6 @@ fn handle_set_mass_storage_request(request: &SetMassStorageRequest) -> Result<()
         debug! {"- UID: {}", stat.st_uid};
         debug! {"- GID: {}", stat.st_gid};
         debug! {"- Size: {}", stat.st_size};
-
-        match util::fd_get_label(device.fd.as_fd()) {
-            Ok(l) => debug!("- Label: {l:?}"),
-            Err(e) => warn!("- Label: <Unknown>: {e:?}"),
-        }
 
         if file_type != FileType::RegularFile {
             bail!("Not a regular file: {:?}: {file_type:?}", device.fd);
