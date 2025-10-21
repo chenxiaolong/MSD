@@ -13,6 +13,10 @@ header Starting daemon
 
 sleep 1
 
+# Do a query to force the configfs chown immediately.
+"${mod_dir}"/msd-tool."$(getprop ro.product.cpu.abi)" \
+    client get-functions
+
 ps -efZ > "${log_dir}"/ps.log
 
 /system/bin/dmesg > "${log_dir}"/dmesg.log
