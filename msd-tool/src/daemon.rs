@@ -296,7 +296,11 @@ fn handle_client(mut stream: UnixStream) -> Result<()> {
             Err(e) => return Err(e).context("Failed to receive request"),
         };
 
+        debug!("Request: {request:?}");
+
         let response = handle_request(&request);
+
+        debug!("Response: {response:?}");
 
         response
             .to_socket(&mut stream)
