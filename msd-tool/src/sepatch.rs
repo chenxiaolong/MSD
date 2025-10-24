@@ -113,19 +113,21 @@ pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
     let t_configfs = t!("configfs")?;
     let t_domain = t!("domain")?;
     let t_fuse = t!("fuse")?;
-    let t_hal_usb_gadget_default = t!("hal_usb_gadget_default")?;
-    let t_hal_usb_gadget_impl = match t!("hal_usb_gadget_impl") {
-        Ok(t) => t,
-        // Allow us to run an arbitrary process as a fake "HAL" in the emulator.
-        Err(e) => {
-            eprintln!("{e}; allowing fake HAL running in su context for debugging");
-            t!("su")?
-        }
-    };
+    // We only support Android 11 and newer, which always has this type, but we
+    // fall back to hal_usb_default because the only way to test sdcardfs in an
+    // emulator is to use the Android 10 AVD.
+    let t_hal_usb_gadget_default = t!("hal_usb_gadget_default").or_else(|e| {
+        eprintln!("{e}; assuming old version of Android");
+        t!("hal_usb_default")
+    })?;
+    // Allow us to run an arbitrary process as a fake "HAL" in the emulator.
+    let t_hal_usb_gadget_impl = t!("hal_usb_gadget_impl").or_else(|e| {
+        eprintln!("{e}; allowing fake HAL running in su context for debugging");
+        t!("su")
+    })?;
     let t_init = t!("init")?;
     let t_kernel = t!("kernel")?;
     let t_mediaprovider = t!("mediaprovider")?;
-    let t_mediaprovider_app = t!("mediaprovider_app")?;
     let t_mlstrustedsubject = t!("mlstrustedsubject")?;
     let t_platform_app = t!("platform_app")?;
     let t_selinuxfs = t!("selinuxfs")?;
@@ -382,24 +384,31 @@ pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
 
     // Allow the daemon to read files on FUSE filesystems. This also allows the
     // mass storage driver to access the files (it uses the daemon's context).
-    for target in [
+    let mut fuse_process_types = vec![
         // Process: android.process.media
         // SAF authorities:
         //   - com.android.providers.downloads.documents [Android 11-15]
         //     (When opening MSD's own files without msf: document ID)
         t_mediaprovider,
-        // Process: com.android.providers.media.module
-        // SAF authorities:
-        //   - com.android.externalstorage.documents [Android 12-15]
-        //   - com.android.providers.downloads.documents [Android 11-15]
-        //     (When opening other apps' files with msf: document ID)
-        //   - com.android.providers.media.documents [Android 11-15]
-        t_mediaprovider_app,
         // Process: com.android.externalstorage
         // SAF authorities:
         //   - com.android.externalstorage.documents [Android 11]
         t_platform_app,
-    ] {
+    ];
+    // Process: com.android.providers.media.module
+    // SAF authorities:
+    //   - com.android.externalstorage.documents [Android 12-15]
+    //   - com.android.providers.downloads.documents [Android 11-15]
+    //     (When opening other apps' files with msf: document ID)
+    //   - com.android.providers.media.documents [Android 11-15]
+    //
+    // We only support Android 11 and newer, which always has this type, but it
+    // is made optional because the only way to test sdcardfs in an emulator is
+    // to use the Android 10 AVD.
+    if let Some(target) = pdb.get_type_id("mediaprovider_app") {
+        fuse_process_types.push(target);
+    }
+    for target in fuse_process_types {
         pdb.set_rule(t_daemon, target, c_fd, p_fd_use, RuleAction::Allow);
     }
 

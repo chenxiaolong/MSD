@@ -220,6 +220,13 @@ fn handle_set_mass_storage_request(request: &SetMassStorageRequest) -> Result<()
             }
         })
         .map(|r| r.and_then(|(fd, _)| ProcessStopper::new(fd).map_err(io::Error::from)))
+        // Ignore ENOSYS when pidfd is unsupported. This will never happen on
+        // supported Android versions, but the daemon needs to be able to run on
+        // the Android 10 emulator to test sdcardfs.
+        .filter(|r| {
+            !r.as_ref()
+                .is_err_and(|e| e.kind() == io::ErrorKind::Unsupported)
+        })
         .collect::<io::Result<Vec<_>>>()
         .context("Failed to search for gadget HAL process")?;
     if gadget_hal_stoppers.is_empty() {
