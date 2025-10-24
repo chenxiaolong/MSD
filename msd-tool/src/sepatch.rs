@@ -7,7 +7,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{Context, Result, anyhow, bail};
 use clap::{Args, Parser};
 use sepatch::{PolicyDb, RuleAction};
 
@@ -130,15 +130,17 @@ pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
     let t_platform_app = t!("platform_app")?;
     let t_selinuxfs = t!("selinuxfs")?;
     let t_shell = t!("shell")?;
+    // https://android.googlesource.com/platform/system/sepolicy/+/afede84ad598ee860fdba1f5002ca7b0609235aa
+    let t_storage_config_prop = t!("storage_config_prop").or_else(|e| {
+        eprintln!("{e}; assuming old version of Android");
+        t!("default_prop")
+    })?;
     let t_system_file = t!("system_file")?;
-    let t_usb_control_prop = match t!("usb_control_prop") {
-        Ok(t) => t,
-        // https://android.googlesource.com/platform/system/sepolicy/+/dc1e5019d6888d15c4d66d435237ee4f64d44af1
-        Err(e) => {
-            eprintln!("{e}; assuming old version of Android");
-            t!("exported2_system_prop")?
-        }
-    };
+    // https://android.googlesource.com/platform/system/sepolicy/+/dc1e5019d6888d15c4d66d435237ee4f64d44af1
+    let t_usb_control_prop = t!("usb_control_prop").or_else(|e| {
+        eprintln!("{e}; assuming old version of Android");
+        t!("exported2_system_prop")
+    })?;
 
     let c_capability = c!("capability")?;
     let p_capability_chown = p!(c_capability, "chown")?;
@@ -370,15 +372,12 @@ pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
         pdb.set_rule(t_daemon, t_configfs, c_lnk_file, perm, RuleAction::Allow);
     }
 
-    // Allow the daemon to read the sys.usb.controller property.
-    for perm in [p_file_getattr, p_file_map, p_file_open, p_file_read] {
-        pdb.set_rule(
-            t_daemon,
-            t_usb_control_prop,
-            c_file,
-            perm,
-            RuleAction::Allow,
-        );
+    // Allow the daemon to read the external_storage.sdcardfs.enabled and
+    // sys.usb.controller properties.
+    for target in [t_storage_config_prop, t_usb_control_prop] {
+        for perm in [p_file_getattr, p_file_map, p_file_open, p_file_read] {
+            pdb.set_rule(t_daemon, target, c_file, perm, RuleAction::Allow);
+        }
     }
 
     // Allow the daemon to read files on FUSE filesystems. This also allows the

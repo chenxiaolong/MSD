@@ -107,6 +107,34 @@ fn usb_controller() -> Result<Option<String>> {
     Ok(None)
 }
 
+#[cfg(target_os = "android")]
+fn is_sdcardfs() -> Result<bool> {
+    const PROPERTY: &str = "external_storage.sdcardfs.enabled";
+
+    // We may need to change this in the future when Android finally drops
+    // support for sdcardfs in the future.
+    //
+    // https://android.googlesource.com/platform//system/vold/+/f36bdddc7e5545d361ea8fe16cbac315794874e3
+    //
+    // Things we can't do:
+    //
+    // * Parse /proc/self/mountinfo - vold can't mount it until the user unlocks
+    //   the device for the first time, which happens after the daemon is
+    //   already started.
+    //
+    // * Parse /proc/config.gz - The device might not be using sdcardfs even if
+    //   the kernel supports the filesystem. This is the case on some older
+    //   devices running newer custom Android OS builds.
+
+    system_properties::read_bool(PROPERTY, true)
+        .with_context(|| format!("Failed to query property: {PROPERTY}"))
+}
+
+#[cfg(target_os = "linux")]
+fn is_sdcardfs() -> Result<bool> {
+    Ok(false)
+}
+
 fn negotiate_protocol(stream: &mut UnixStream) -> Result<()> {
     let client_version = stream
         .read_u8()
@@ -333,6 +361,16 @@ fn drop_privileges() -> Result<()> {
     let real_uid = rustix::process::getuid();
     let real_gid = rustix::process::getgid();
 
+    let supplementary_groups: &[Gid] = if is_sdcardfs()? {
+        info!("Adding sdcard_rw supplementary group due to sdcardfs");
+
+        let sdcard_rw_gid = Gid::from_raw(1015);
+
+        &[sdcard_rw_gid]
+    } else {
+        &[]
+    };
+
     if real_uid == system_uid && real_gid == system_gid {
         let capability_set =
             rustix::thread::capabilities(None).context("Failed to query capabilities")?;
@@ -344,7 +382,8 @@ fn drop_privileges() -> Result<()> {
         rustix::thread::set_keep_capabilities(true)
             .context("Failed to set keep capabilities flag")?;
 
-        rustix::thread::set_thread_groups(&[]).context("Failed to drop supplementary groups")?;
+        rustix::thread::set_thread_groups(supplementary_groups)
+            .context("Failed to set supplementary groups")?;
         rustix::thread::set_thread_res_gid(system_gid, system_gid, system_gid)
             .context("Failed to switch GID to system group")?;
         rustix::thread::set_thread_res_uid(system_uid, system_uid, system_uid)
