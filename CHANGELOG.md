@@ -9,6 +9,8 @@
 
 ### Unreleased
 
+* Add support for devices that use the legacy sdcardfs ([Issue #58], [PR #59])
+
 ### Version 1.16
 
 * Remove dependency info block from APK ([PR #56])
@@ -105,6 +107,7 @@
 [Issue #36]: https://github.com/chenxiaolong/MSD/issues/36
 [Issue #39]: https://github.com/chenxiaolong/MSD/issues/39
 [Issue #42]: https://github.com/chenxiaolong/MSD/issues/42
+[Issue #58]: https://github.com/chenxiaolong/MSD/issues/58
 [PR #1]: https://github.com/chenxiaolong/MSD/pull/1
 [PR #3]: https://github.com/chenxiaolong/MSD/pull/3
 [PR #4]: https://github.com/chenxiaolong/MSD/pull/4
@@ -140,3 +143,4 @@
 [PR #55]: https://github.com/chenxiaolong/MSD/pull/55
 [PR #56]: https://github.com/chenxiaolong/MSD/pull/56
 [PR #57]: https://github.com/chenxiaolong/MSD/pull/57
+[PR #59]: https://github.com/chenxiaolong/MSD/pull/59
