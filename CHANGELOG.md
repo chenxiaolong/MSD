@@ -10,6 +10,7 @@
 ### Unreleased
 
 * Add support for devices that use the legacy sdcardfs ([Issue #58], [PR #59])
+* Add workaround for Samsung (and other Qualcomm) devices ([Issue #58], [Issue #62], [PR #63])
 
 ### Version 1.16
 
@@ -108,6 +109,7 @@
 [Issue #39]: https://github.com/chenxiaolong/MSD/issues/39
 [Issue #42]: https://github.com/chenxiaolong/MSD/issues/42
 [Issue #58]: https://github.com/chenxiaolong/MSD/issues/58
+[Issue #62]: https://github.com/chenxiaolong/MSD/issues/62
 [PR #1]: https://github.com/chenxiaolong/MSD/pull/1
 [PR #3]: https://github.com/chenxiaolong/MSD/pull/3
 [PR #4]: https://github.com/chenxiaolong/MSD/pull/4
@@ -144,3 +146,4 @@
 [PR #56]: https://github.com/chenxiaolong/MSD/pull/56
 [PR #57]: https://github.com/chenxiaolong/MSD/pull/57
 [PR #59]: https://github.com/chenxiaolong/MSD/pull/59
+[PR #63]: https://github.com/chenxiaolong/MSD/pull/63
