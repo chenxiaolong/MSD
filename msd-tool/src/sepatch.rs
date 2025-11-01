@@ -419,14 +419,20 @@ pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
         pdb.set_rule(t_daemon, target, c_fd, p_fd_use, RuleAction::Allow);
     }
 
-    let mut internal_storage_types = vec![t_fuse];
-    // These are needed for older devices that use sdcardfs.
-    for name in ["sdcardfs", "media_rw_data_file"] {
+    let mut storage_types = vec![t_fuse];
+    for name in [
+        // These are needed for older devices that use sdcardfs.
+        "sdcardfs",
+        "media_rw_data_file",
+        // For SD cards.
+        "vfat",
+        "exfat",
+    ] {
         if let Some(target) = pdb.get_type_id(name) {
-            internal_storage_types.push(target);
+            storage_types.push(target);
         }
     }
-    for target in internal_storage_types {
+    for target in storage_types {
         for perm in [p_file_getattr, p_file_read, p_file_open, p_file_write] {
             pdb.set_rule(t_daemon, target, c_file, perm, RuleAction::Allow);
         }
