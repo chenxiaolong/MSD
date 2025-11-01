@@ -56,7 +56,8 @@ const SELINUX_ENFORCE: &str = "/sys/fs/selinux/enforce";
 const GADGET_ROOT: &str = "/config/usb_gadget/g1";
 const CONFIGS_NAME: &str = "b.1";
 
-const FUNCTION_NAME: &str = "mass_storage.msd";
+const FUNCTION_PREFIX: &str = "mass_storage.";
+const FUNCTION_NAME_DEFAULT: &str = "mass_storage.msd";
 const CONFIG_NAME: &str = "msd";
 
 const GADGET_HAL_PROCESS: &str = "android.hardware.usb.gadget-service";
@@ -135,6 +136,33 @@ fn is_sdcardfs() -> Result<bool> {
     Ok(false)
 }
 
+/// Find existing mass storage gadget function or return the default.
+///
+/// Samsung devices have a kernel bug where creating a new mass storage gadget
+/// function fails with:
+///
+/// ```
+/// sysfs: cannot create duplicate filename '/devices/virtual/android_usb/android0/f_mass_storage'
+/// ```
+///
+/// This happens even if all pre-existing mass storage gadget functions are
+/// deleted first.
+fn detect_function_name(gadget: &UsbGadget) -> Result<OsString> {
+    for function in gadget.functions()? {
+        let Some(name) = function.to_str() else {
+            warn!("Ignoring non-UTF-8 function: {function:?}");
+            continue;
+        };
+
+        if name.starts_with(FUNCTION_PREFIX) {
+            debug!("Found preexisting mass storage gadget function: {name:?}");
+            return Ok(function);
+        }
+    }
+
+    Ok(FUNCTION_NAME_DEFAULT.into())
+}
+
 fn negotiate_protocol(stream: &mut UnixStream) -> Result<()> {
     let client_version = stream
         .read_u8()
@@ -194,9 +222,9 @@ fn handle_set_mass_storage_request(request: &SetMassStorageRequest) -> Result<()
         }
     }
 
-    let function_name = OsStr::new(FUNCTION_NAME);
     let config_name = OsStr::new(CONFIG_NAME);
     let gadget = UsbGadget::new(GADGET_ROOT, CONFIGS_NAME)?;
+    let function_name = detect_function_name(&gadget)?;
 
     // We need to SIGSTOP this process while we make our changes to prevent it
     // from constantly trying to ensure that UDC is set to the expected value.
@@ -245,24 +273,29 @@ fn handle_set_mass_storage_request(request: &SetMassStorageRequest) -> Result<()
     }
 
     // Extra LUNs must be deleted first, but lun.0 cannot be deleted.
-    if let Some(function) = gadget.open_mass_storage_function(function_name)? {
+    if let Some(function) = gadget.open_mass_storage_function(&function_name)? {
         for lun in function.luns()? {
-            if lun != 0 && function.delete_lun(lun)? {
-                debug!("Deleted LUN #{lun}")
+            if lun == 0 {
+                function.clear_lun(lun)?;
+                debug!("Unregistered LUN #{lun}");
+            } else if function.delete_lun(lun)? {
+                debug!("Deleted LUN #{lun}");
             }
         }
     }
-    if gadget.delete_function(function_name)? {
+
+    // On Samsung devices, mass storage gadget functions cannot be recreated.
+    if function_name == FUNCTION_NAME_DEFAULT && gadget.delete_function(&function_name)? {
         debug!("Deleted old mass storage function");
     }
 
     if !request.devices.is_empty() {
-        if gadget.create_function(function_name)? {
+        if gadget.create_function(&function_name)? {
             debug!("Created mass storage function");
         }
 
         let function = gadget
-            .open_mass_storage_function(function_name)?
+            .open_mass_storage_function(&function_name)?
             .ok_or_else(|| anyhow!("Newly created function does not exist: {function_name:?}"))?;
         for (lun, device) in request.devices.iter().enumerate() {
             // lun.0 exists by default.
@@ -274,7 +307,7 @@ fn handle_set_mass_storage_request(request: &SetMassStorageRequest) -> Result<()
             function.set_lun(lun as u8, device.fd.as_fd(), device.cdrom, device.ro)?;
         }
 
-        if gadget.create_config(config_name, function_name)? {
+        if gadget.create_config(config_name, &function_name)? {
             debug!("Created mass storage config");
         }
     }
@@ -286,15 +319,19 @@ fn handle_set_mass_storage_request(request: &SetMassStorageRequest) -> Result<()
 }
 
 fn handle_get_mass_storage_request() -> Result<Vec<ActiveMassStorageDevice>> {
-    let function_name = OsStr::new(FUNCTION_NAME);
     let gadget = UsbGadget::new(GADGET_ROOT, CONFIGS_NAME)?;
+    let function_name = detect_function_name(&gadget)?;
     let mut devices = vec![];
 
-    if let Some(function) = gadget.open_mass_storage_function(function_name)? {
+    if let Some(function) = gadget.open_mass_storage_function(&function_name)? {
         for lun in function.luns()? {
             let (file, cdrom, ro) = function.get_lun(lun)?;
 
-            devices.push(ActiveMassStorageDevice { file, cdrom, ro });
+            // On Samsung devices, the mass storage gadget function cannot be
+            // recreated, so we leave it in an unconfigured state.
+            if let Some(file) = file {
+                devices.push(ActiveMassStorageDevice { file, cdrom, ro });
+            }
         }
     }
 
@@ -369,11 +406,12 @@ fn drop_privileges() -> Result<()> {
     let real_gid = rustix::process::getgid();
 
     let supplementary_groups: &[Gid] = if is_sdcardfs()? {
-        info!("Adding sdcard_rw supplementary group due to sdcardfs");
-
-        let sdcard_rw_gid = Gid::from_raw(1015);
-
-        &[sdcard_rw_gid]
+        &[
+            // Android 10 emulator.
+            Gid::from_raw(1015), // sdcard_rw
+            // Samsung.
+            Gid::from_raw(9997), // everybody
+        ]
     } else {
         &[]
     };
@@ -388,6 +426,8 @@ fn drop_privileges() -> Result<()> {
     } else if real_uid == Uid::ROOT && real_gid == Gid::ROOT {
         rustix::thread::set_keep_capabilities(true)
             .context("Failed to set keep capabilities flag")?;
+
+        debug!("uid={system_uid:?}, gid={system_gid:?}, groups={supplementary_groups:?}");
 
         rustix::thread::set_thread_groups(supplementary_groups)
             .context("Failed to set supplementary groups")?;

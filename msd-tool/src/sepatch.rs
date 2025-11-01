@@ -342,36 +342,43 @@ pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
     }
 
     // Allow the daemon to interact with configfs.
-    for perm in [
-        p_dir_add_name,
-        p_dir_create,
-        p_dir_open,
-        p_dir_read,
-        p_dir_remove_name,
-        p_dir_rmdir,
-        p_dir_search,
-        p_dir_setattr,
-        p_dir_write,
-    ] {
-        pdb.set_rule(t_daemon, t_configfs, c_dir, perm, RuleAction::Allow);
+    let mut configfs_types = vec![t_configfs];
+    // This is used on Samsung stock OS.
+    if let Some(target) = pdb.get_type_id("usb_configfs") {
+        configfs_types.push(target);
     }
-    for perm in [
-        p_file_create,
-        p_file_getattr,
-        p_file_open,
-        p_file_read,
-        p_file_setattr,
-        p_file_write,
-    ] {
-        pdb.set_rule(t_daemon, t_configfs, c_file, perm, RuleAction::Allow);
-    }
-    for perm in [
-        p_lnk_file_create,
-        p_lnk_file_read,
-        p_lnk_file_setattr,
-        p_lnk_file_unlink,
-    ] {
-        pdb.set_rule(t_daemon, t_configfs, c_lnk_file, perm, RuleAction::Allow);
+    for target in configfs_types {
+        for perm in [
+            p_dir_add_name,
+            p_dir_create,
+            p_dir_open,
+            p_dir_read,
+            p_dir_remove_name,
+            p_dir_rmdir,
+            p_dir_search,
+            p_dir_setattr,
+            p_dir_write,
+        ] {
+            pdb.set_rule(t_daemon, target, c_dir, perm, RuleAction::Allow);
+        }
+        for perm in [
+            p_file_create,
+            p_file_getattr,
+            p_file_open,
+            p_file_read,
+            p_file_setattr,
+            p_file_write,
+        ] {
+            pdb.set_rule(t_daemon, target, c_file, perm, RuleAction::Allow);
+        }
+        for perm in [
+            p_lnk_file_create,
+            p_lnk_file_read,
+            p_lnk_file_setattr,
+            p_lnk_file_unlink,
+        ] {
+            pdb.set_rule(t_daemon, target, c_lnk_file, perm, RuleAction::Allow);
+        }
     }
 
     // Allow the daemon to read the external_storage.sdcardfs.enabled and

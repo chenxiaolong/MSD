@@ -34,33 +34,32 @@ fn open_configfs_rel_dir(dir_path: &Path, dir: &Dir, path: &Path) -> Result<Dir>
 }
 
 fn read_configfs_file(dir_path: &Path, dir: &Dir, path: &Path) -> Result<Vec<u8>> {
-    || -> Result<Vec<u8>> {
-        let mut file = dir
-            .open(path)
-            .and_then(|d| util::check_fs_magic(d, util::CONFIGFS_MAGIC))?;
+    let mut file = dir
+        .open(path)
+        .and_then(|d| util::check_fs_magic(d, util::CONFIGFS_MAGIC))
+        .with_context(|| format!("Failed to open file for reading: {:?}", dir_path.join(path)))?;
 
-        let mut buf = vec![];
-        file.read_to_end(&mut buf)?;
+    let mut buf = vec![];
+    file.read_to_end(&mut buf)
+        .with_context(|| format!("Failed to read file: {:?}", dir_path.join(path)))?;
 
-        Ok(buf)
-    }()
-    .with_context(|| format!("Failed to read file: {:?}", dir_path.join(path)))
+    Ok(buf)
 }
 
 fn write_configfs_file(dir_path: &Path, dir: &Dir, path: &Path, bufs: &[IoSlice]) -> Result<()> {
-    || -> Result<()> {
-        let mut file = dir
-            .create(path)
-            .and_then(|d| util::check_fs_magic(d, util::CONFIGFS_MAGIC))?;
+    let mut file = dir
+        .create(path)
+        .and_then(|d| util::check_fs_magic(d, util::CONFIGFS_MAGIC))
+        .with_context(|| format!("Failed to open file for writing: {:?}", dir_path.join(path)))?;
 
-        let n = file.write_vectored(bufs)?;
-        if n != bufs.iter().map(|b| b.len()).sum() {
-            bail!("Failed to write data in single syscall");
-        }
+    let n = file
+        .write_vectored(bufs)
+        .with_context(|| format!("Failed to write file: {:?}", dir_path.join(path)))?;
+    if n != bufs.iter().map(|b| b.len()).sum() {
+        bail!("Failed to write data in single syscall");
+    }
 
-        Ok(())
-    }()
-    .with_context(|| format!("Failed to write file: {:?}", dir_path.join(path)))
+    Ok(())
 }
 
 fn recursive_chown_configfs_dir(
@@ -269,6 +268,25 @@ impl UsbGadget {
         }
     }
 
+    /// List all gadget functions.
+    pub fn functions(&self) -> Result<Vec<OsString>> {
+        let (path, dir) = self.open_dir(self.functions_rel_path())?;
+
+        let mut functions = vec![];
+
+        for entry in dir
+            .entries()
+            .with_context(|| format!("Failed to read directory: {path:?}"))?
+        {
+            let entry =
+                entry.with_context(|| format!("Failed to read directory entry: {path:?}"))?;
+
+            functions.push(entry.file_name());
+        }
+
+        Ok(functions)
+    }
+
     /// Create a gadget function. Returns whether the function is newly created.
     pub fn create_function(&self, name: &OsStr) -> Result<bool> {
         let (path, dir) = self.open_dir(self.functions_rel_path())?;
@@ -388,7 +406,7 @@ impl MassStorageFunction {
 
     /// Get the configuration for an existing LUN. Returns the path, whether the
     /// device is a CDROM, and whether the device is read-only.
-    pub fn get_lun(&self, lun: u8) -> Result<(PathBuf, bool, bool)> {
+    pub fn get_lun(&self, lun: u8) -> Result<(Option<PathBuf>, bool, bool)> {
         let name = format!("lun.{lun}");
         let path = Path::new(&name);
 
@@ -409,11 +427,13 @@ impl MassStorageFunction {
 
             bail!(
                 "configfs file did not end in newline: {:?}: {data:?}",
-                base_path.join(path)
+                base_path.join(path),
             );
         }
 
-        pop_newline(&self.path, &file_path, &mut file)?;
+        if !file.is_empty() {
+            pop_newline(&self.path, &file_path, &mut file)?;
+        }
         pop_newline(&self.path, &cdrom_path, &mut cdrom)?;
         pop_newline(&self.path, &ro_path, &mut ro)?;
 
@@ -428,10 +448,15 @@ impl MassStorageFunction {
             }
         }
 
+        let file = if file.is_empty() {
+            None
+        } else {
+            Some(PathBuf::from(OsString::from_vec(file)))
+        };
         let cdrom = get_bool(&self.path, &cdrom_path, &cdrom)?;
         let ro = get_bool(&self.path, &ro_path, &ro)?;
 
-        Ok((PathBuf::from(OsString::from_vec(file)), cdrom, ro))
+        Ok((file, cdrom, ro))
     }
 
     /// Set the configuration for a LUN. This can only be done if a LUN is newly
@@ -468,5 +493,18 @@ impl MassStorageFunction {
         )?;
 
         Ok(())
+    }
+
+    /// Clear the configuration for a LUN.
+    pub fn clear_lun(&self, lun: u8) -> Result<()> {
+        let name = format!("lun.{lun}");
+        let path = Path::new(&name);
+
+        write_configfs_file(
+            &self.path,
+            &self.dir,
+            &path.join("file"),
+            &[IoSlice::new(b"\n")],
+        )
     }
 }
