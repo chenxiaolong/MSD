@@ -16,18 +16,14 @@ import com.chiller3.msd.R
  * clickable and switchable.
  */
 class SplitSwitchPreference : SwitchPreferenceCompat {
-    @Suppress("unused")
     constructor(context: Context) : this(context, null)
 
-    @Suppress("unused")
     constructor(context: Context, attrs: AttributeSet?) :
             this(context, attrs, R.attr.splitSwitchPreferenceStyle)
 
-    @Suppress("unused")
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
             this(context, attrs, defStyleAttr, 0)
 
-    @Suppress("unused")
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) :
             super(context, attrs, defStyleAttr, defStyleRes)
 

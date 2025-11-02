@@ -15,7 +15,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class MessageDialogFragment : DialogFragment() {
     companion object {
-        val TAG = MessageDialogFragment::class.java.simpleName
+        val TAG: String = MessageDialogFragment::class.java.simpleName
 
         private const val ARG_TITLE = "title"
         private const val ARG_MESSAGE = "message"

@@ -90,8 +90,7 @@ private const val PROTOCOL_VERSION: Byte = 1
 fun negotiateProtocol(stream: LocalSocket) {
     stream.outputStream.writeByte(PROTOCOL_VERSION)
 
-    val ack = stream.inputStream.readByte()
-    when (ack) {
+    when (val ack = stream.inputStream.readByte()) {
         1.toByte() -> {}
         0.toByte() -> throw IOException("Daemon does not support protocol version: $PROTOCOL_VERSION")
         else -> throw IOException("Invalid protocol version acknowledgement: $ack")
@@ -287,9 +286,7 @@ data class GetMassStorageResponse(val devices: List<ActiveMassStorageDevice>) : 
 data class Request(val message: RequestMessage) : ToSocket {
     companion object : FromSocket<Request> {
         override fun fromSocket(stream: LocalSocket): Request {
-            val id = stream.inputStream.readByte()
-
-            val message = when (id) {
+            val message = when (val id = stream.inputStream.readByte()) {
                 GetFunctionsRequest.id -> GetFunctionsRequest.fromSocket(stream)
                 SetMassStorageRequest.id -> SetMassStorageRequest.fromSocket(stream)
                 GetMassStorageRequest.id -> GetMassStorageRequest.fromSocket(stream)
@@ -320,9 +317,7 @@ data class Request(val message: RequestMessage) : ToSocket {
 data class Response(val message: ResponseMessage) : ToSocket {
     companion object : FromSocket<Response> {
         override fun fromSocket(stream: LocalSocket): Response {
-            val id = stream.inputStream.readByte()
-
-            val message = when (id) {
+            val message = when (val id = stream.inputStream.readByte()) {
                 ErrorResponse.id -> ErrorResponse.fromSocket(stream)
                 GetFunctionsResponse.id -> GetFunctionsResponse.fromSocket(stream)
                 SetMassStorageResponse.id -> SetMassStorageResponse.fromSocket(stream)

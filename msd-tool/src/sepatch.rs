@@ -223,18 +223,18 @@ pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
 
         if source_type == t_source {
             new_source_type = Some(t_target);
-        } else if let Some((t_source_uffd, t_target_uffd)) = t_uffd {
-            if source_type == t_source_uffd {
-                new_source_type = Some(t_target_uffd);
-            }
+        } else if let Some((t_source_uffd, t_target_uffd)) = t_uffd
+            && source_type == t_source_uffd
+        {
+            new_source_type = Some(t_target_uffd);
         }
 
         if target_type == t_source {
             new_target_type = Some(t_target);
-        } else if let Some((t_source_uffd, t_target_uffd)) = t_uffd {
-            if target_type == t_source_uffd {
-                new_target_type = Some(t_target_uffd);
-            }
+        } else if let Some((t_source_uffd, t_target_uffd)) = t_uffd
+            && target_type == t_source_uffd
+        {
+            new_target_type = Some(t_target_uffd);
         }
 
         if new_source_type.is_none() && new_target_type.is_none() {

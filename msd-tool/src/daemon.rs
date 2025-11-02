@@ -343,7 +343,7 @@ fn handle_request(request: &Request) -> Response {
         Request::GetFunctions(_) => handle_get_functions_request()
             .map(|functions| Response::GetFunctions(GetFunctionsResponse { functions })),
         Request::SetMassStorage(r) => handle_set_mass_storage_request(r)
-            .map(|_| Response::SetMassStorage(SetMassStorageResponse)),
+            .map(|()| Response::SetMassStorage(SetMassStorageResponse)),
         Request::GetMassStorage(_) => handle_get_mass_storage_request()
             .map(|devices| Response::GetMassStorage(GetMassStorageResponse { devices })),
     };

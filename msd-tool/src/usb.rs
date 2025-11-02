@@ -155,11 +155,11 @@ impl UsbGadget {
         Path::new("configs").join(&self.config_name)
     }
 
-    fn functions_rel_path(&self) -> &'static Path {
+    fn functions_rel_path() -> &'static Path {
         Path::new("functions")
     }
 
-    fn function_rel_path(&self, name: &OsStr) -> PathBuf {
+    fn function_rel_path(name: &OsStr) -> PathBuf {
         Path::new("functions").join(name)
     }
 
@@ -236,11 +236,11 @@ impl UsbGadget {
     pub fn create_config(&self, name: &OsStr, function: &OsStr) -> Result<bool> {
         // We can't use a relative path here. The kernel resolves it immediately
         // relative to the cwd.
-        let function_path = self.root.join(self.function_rel_path(function));
+        let function_path = self.root.join(Self::function_rel_path(function));
         let (path, dir) = self.open_dir(&self.configs_rel_path())?;
 
         match dir.symlink_contents(function_path, name) {
-            Ok(_) => Ok(true),
+            Ok(()) => Ok(true),
             Err(e) if e.kind() == io::ErrorKind::AlreadyExists => {
                 let target = dir.read_link_contents(name);
                 if target.as_ref().ok().and_then(|t| t.file_name()) == Some(function) {
@@ -260,7 +260,7 @@ impl UsbGadget {
         let (path, dir) = self.open_dir(&self.configs_rel_path())?;
 
         match dir.remove_file(name) {
-            Ok(_) => Ok(true),
+            Ok(()) => Ok(true),
             Err(e) if e.kind() == io::ErrorKind::NotFound => Ok(false),
             Err(e) => {
                 Err(e).with_context(|| format!("Failed to delete config: {:?}", path.join(name)))
@@ -270,7 +270,7 @@ impl UsbGadget {
 
     /// List all gadget functions.
     pub fn functions(&self) -> Result<Vec<OsString>> {
-        let (path, dir) = self.open_dir(self.functions_rel_path())?;
+        let (path, dir) = self.open_dir(Self::functions_rel_path())?;
 
         let mut functions = vec![];
 
@@ -289,10 +289,10 @@ impl UsbGadget {
 
     /// Create a gadget function. Returns whether the function is newly created.
     pub fn create_function(&self, name: &OsStr) -> Result<bool> {
-        let (path, dir) = self.open_dir(self.functions_rel_path())?;
+        let (path, dir) = self.open_dir(Self::functions_rel_path())?;
 
         match dir.create_dir(name) {
-            Ok(_) => {
+            Ok(()) => {
                 chown_configfs_dir_to_rugid(&path, &dir, Path::new(name))?;
                 Ok(true)
             }
@@ -306,10 +306,10 @@ impl UsbGadget {
     /// Delete a gadget function. Returns whether the function previously
     /// existed.
     pub fn delete_function(&self, name: &OsStr) -> Result<bool> {
-        let (path, dir) = self.open_dir(self.functions_rel_path())?;
+        let (path, dir) = self.open_dir(Self::functions_rel_path())?;
 
         match dir.remove_dir(name) {
-            Ok(_) => Ok(true),
+            Ok(()) => Ok(true),
             Err(e) if e.kind() == io::ErrorKind::NotFound => Ok(false),
             Err(e) => {
                 Err(e).with_context(|| format!("Failed to delete function: {:?}", path.join(name)))
@@ -320,7 +320,7 @@ impl UsbGadget {
     /// Open an existing mass storage function. Returns None if the function
     /// does not exist.
     pub fn open_mass_storage_function(&self, name: &OsStr) -> Result<Option<MassStorageFunction>> {
-        match self.open_dir(&self.function_rel_path(name)) {
+        match self.open_dir(&Self::function_rel_path(name)) {
             Ok((p, d)) => Ok(Some(MassStorageFunction::new(p, d))),
             Err(e)
                 if e.downcast_ref::<io::Error>().map(|ie| ie.kind())
@@ -380,7 +380,7 @@ impl MassStorageFunction {
         let name = format!("lun.{lun}");
 
         match self.dir.create_dir(&name) {
-            Ok(_) => {
+            Ok(()) => {
                 chown_configfs_dir_to_rugid(&self.path, &self.dir, Path::new(&name))?;
                 Ok(true)
             }
@@ -396,7 +396,7 @@ impl MassStorageFunction {
         let name = format!("lun.{lun}");
 
         match self.dir.remove_dir(&name) {
-            Ok(_) => Ok(true),
+            Ok(()) => Ok(true),
             Err(e) if e.kind() == io::ErrorKind::NotFound => Ok(false),
             Err(e) => {
                 Err(e).with_context(|| format!("Failed to delete LUN: {:?}", self.path.join(name)))

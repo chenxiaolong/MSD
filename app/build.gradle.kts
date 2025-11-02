@@ -3,9 +3,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
-import com.android.build.gradle.BaseExtension
+import com.android.build.gradle.internal.UsesSdkComponentsBuildService
 import com.android.build.gradle.internal.dsl.SdkComponentsImpl
-import com.android.build.gradle.internal.services.DslServices
 import org.eclipse.jgit.api.ArchiveCommand
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.archive.TarFormat
@@ -120,7 +119,7 @@ android {
 
     compileSdk = 36
     buildToolsVersion = "36.0.0"
-    ndkVersion = "28.1.13356709"
+    ndkVersion = "29.0.14206865"
 
     defaultConfig {
         applicationId = "com.chiller3.msd"
@@ -196,19 +195,6 @@ dependencies {
     implementation(libs.material)
 }
 
-// AGP is currently set up so that the NDK auto-installation only happens when the C++ functionality
-// is enabled. We want that behavior even though we're only using the NDK for building Rust code.
-val sdkComponents = androidComponents.sdkComponents as SdkComponentsImpl
-val dslServices = BaseExtension::class.java
-    .getDeclaredField("dslServices")
-    .apply { isAccessible = true }
-    .get(android) as DslServices
-val ndkHandler = dslServices.sdkComponents.get().versionedNdkHandler(
-    sdkComponents.ndkVersion.get(),
-    sdkComponents.ndkPath.takeIf { it.isPresent }?.get(),
-)
-ndkHandler.getNdkPlatform(downloadOkay = true)
-
 val archive = tasks.register("archive") {
     inputs.property("gitVersionTriple.third", gitVersionTriple.third)
 
@@ -250,6 +236,21 @@ for ((target, abi) in listOf(
     val suffix = abi.split('-', '_').joinToString("") { it.uppercaseFirstChar() }
 
     val msdTool = tasks.register<Exec>("msdTool$suffix") {
+        project.objects.newInstance<UsesSdkComponentsBuildService>().let { usesSdkComponents ->
+            usesSdkComponents.initializeSdkComponentsBuildService(this)
+            val sdkComponentsBuildService = usesSdkComponents.sdkComponentsBuildService.get()
+
+            // AGP is currently set up so that the NDK auto-installation only happens when the C++
+            // functionality is enabled. We want that behavior even though we're only using the NDK
+            // for building Rust code.
+            val sdkComponents = androidComponents.sdkComponents as SdkComponentsImpl
+            val ndkHandler = sdkComponentsBuildService.versionedNdkHandler(
+                sdkComponents.ndkVersion.get(),
+                sdkComponents.ndkPath.takeIf { it.isPresent }?.get(),
+            )
+            ndkHandler.getNdkPlatform(downloadOkay = true)
+        }
+
         val srcDir = File(rootDir, "msd-tool")
 
         inputs.files(
@@ -541,10 +542,10 @@ tasks.register("changelogUpdateLinks") {
 }
 
 tasks.register("changelogPreRelease") {
-    val version = project.property("releaseVersion")
+    val version = project.findProperty("releaseVersion")
 
     doLast {
-        updateChangelog(version.toString(), true)
+        updateChangelog(version!!.toString(), true)
         updateModuleChangelog("v$version")
     }
 }

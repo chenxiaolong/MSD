@@ -22,7 +22,7 @@ import kotlinx.parcelize.Parcelize
 
 open class DeviceDialogFragment : DialogFragment() {
     companion object {
-        val TAG = DeviceDialogFragment::class.java.simpleName
+        val TAG: String = DeviceDialogFragment::class.java.simpleName
 
         private const val ARG_DEVICE = "device"
         const val RESULT_ACTION = "action"

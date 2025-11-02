@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Andrew Gunnerson
+// SPDX-FileCopyrightText: 2024-2025 Andrew Gunnerson
 // SPDX-License-Identifier: GPL-3.0-only
 
 use std::{
@@ -37,9 +37,10 @@ fn send_fds(stream: &mut UnixStream, fds: &[BorrowedFd]) -> Result<(), Errno> {
     let mut space = vec![MaybeUninit::uninit(); rustix::cmsg_space!(ScmRights(fds.len()))];
     let mut cmsg_buf = SendAncillaryBuffer::new(&mut space);
 
-    if !cmsg_buf.push(SendAncillaryMessage::ScmRights(fds)) {
-        panic!("Failed to push fd into cmsg buffer");
-    }
+    assert!(
+        cmsg_buf.push(SendAncillaryMessage::ScmRights(fds)),
+        "Failed to push fd into cmsg buffer",
+    );
 
     rustix::net::sendmsg(
         stream,

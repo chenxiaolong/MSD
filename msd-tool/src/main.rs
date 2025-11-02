@@ -15,7 +15,7 @@ use std::{
 };
 
 use clap::{Parser, Subcommand, ValueEnum};
-use tracing::{error, Level};
+use tracing::{Level, error};
 
 #[allow(clippy::enum_variant_names)]
 #[derive(Debug, Subcommand)]

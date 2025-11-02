@@ -3,7 +3,7 @@
 
 use std::{fs::File, os::unix::net::UnixStream, path::PathBuf};
 
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use byteorder::{ReadBytesExt, WriteBytesExt};
 use clap::{CommandFactory, Parser, Subcommand, ValueEnum};
 
