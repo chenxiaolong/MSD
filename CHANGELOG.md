@@ -12,6 +12,7 @@
 * Add support for devices that use the legacy sdcardfs ([Issue #58], [PR #59])
 * Add workaround for Samsung (and other Qualcomm) devices ([Issue #58], [Issue #62], [PR #63])
 * Add support for files on FAT32 and exFAT SD cards ([PR #64])
+* Update dependencies ([PR #65])
 
 ### Version 1.16
 
@@ -149,3 +150,4 @@
 [PR #59]: https://github.com/chenxiaolong/MSD/pull/59
 [PR #63]: https://github.com/chenxiaolong/MSD/pull/63
 [PR #64]: https://github.com/chenxiaolong/MSD/pull/64
+[PR #65]: https://github.com/chenxiaolong/MSD/pull/65
