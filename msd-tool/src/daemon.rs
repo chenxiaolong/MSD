@@ -410,6 +410,7 @@ fn drop_privileges() -> Result<()> {
             // Android 10 emulator.
             Gid::from_raw(1015), // sdcard_rw
             // Samsung.
+            Gid::from_raw(1023), // media_rw
             Gid::from_raw(9997), // everybody
         ]
     } else {
