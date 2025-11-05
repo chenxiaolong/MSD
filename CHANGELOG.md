@@ -9,6 +9,8 @@
 
 ### Unreleased
 
+* Add support for sdcardfs devices where files are owned by the `media_rw` group ([Issue #66], [PR #67])
+
 ### Version 1.17
 
 * Add support for devices that use the legacy sdcardfs ([Issue #58], [PR #59])
@@ -114,6 +116,7 @@
 [Issue #42]: https://github.com/chenxiaolong/MSD/issues/42
 [Issue #58]: https://github.com/chenxiaolong/MSD/issues/58
 [Issue #62]: https://github.com/chenxiaolong/MSD/issues/62
+[Issue #66]: https://github.com/chenxiaolong/MSD/issues/66
 [PR #1]: https://github.com/chenxiaolong/MSD/pull/1
 [PR #3]: https://github.com/chenxiaolong/MSD/pull/3
 [PR #4]: https://github.com/chenxiaolong/MSD/pull/4
@@ -153,3 +156,4 @@
 [PR #63]: https://github.com/chenxiaolong/MSD/pull/63
 [PR #64]: https://github.com/chenxiaolong/MSD/pull/64
 [PR #65]: https://github.com/chenxiaolong/MSD/pull/65
+[PR #67]: https://github.com/chenxiaolong/MSD/pull/67
