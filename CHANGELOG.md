@@ -7,6 +7,8 @@
     to update the actual links at the bottom of the file.
 -->
 
+### Unreleased
+
 ### Version 1.18
 
 * Add support for sdcardfs devices where files are owned by the `media_rw` group ([Issue #66], [PR #67])
