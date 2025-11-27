@@ -440,9 +440,10 @@ class SettingsFragment : PreferenceFragmentCompat(), FragmentResultListener,
             .apply {
                 if (details != null) {
                     setAction(R.string.action_details) {
-                        MessageDialogFragment.newInstance("Error details", details)
-                            .show(parentFragmentManager.beginTransaction(),
-                                MessageDialogFragment.TAG)
+                        MessageDialogFragment.newInstance(
+                            getString(R.string.dialog_error_details_title),
+                            details,
+                        ).show(parentFragmentManager.beginTransaction(), MessageDialogFragment.TAG)
                     }
                 }
             }

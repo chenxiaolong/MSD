@@ -32,6 +32,7 @@
 
     <!-- Alerts -->
     <string name="action_details">Details</string>
+    <string name="dialog_error_details_title">Error details</string>
     <string name="alert_query_state_failure">Failed to query USB controller state.</string>
     <string name="alert_apply_state_failure">Failed to configure USB controller.</string>
     <string name="alert_reapply_required">The changes will take effect the next time the settings are applied.</string>
