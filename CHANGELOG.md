@@ -10,6 +10,7 @@
 ### Unreleased
 
 * Fix hardcoded English string in error details dialog ([PR #68])
+* Add support for Android 16 QPR2's new SELinux binary policy format ([PR #70])
 
 ### Version 1.18
 
@@ -162,3 +163,4 @@
 [PR #65]: https://github.com/chenxiaolong/MSD/pull/65
 [PR #67]: https://github.com/chenxiaolong/MSD/pull/67
 [PR #68]: https://github.com/chenxiaolong/MSD/pull/68
+[PR #70]: https://github.com/chenxiaolong/MSD/pull/70
