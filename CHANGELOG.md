@@ -7,7 +7,7 @@
     to update the actual links at the bottom of the file.
 -->
 
-### Unreleased
+### Version 1.19
 
 * Fix hardcoded English string in error details dialog ([PR #68])
 * Add support for Android 16 QPR2's new SELinux binary policy format ([PR #70])
