@@ -9,6 +9,8 @@
 
 ### Unreleased
 
+* Add armeabi-v7a build of msd-tool ([Issue #71], [PR #72])
+
 ### Version 1.19
 
 * Fix hardcoded English string in error details dialog ([PR #68])
@@ -124,6 +126,7 @@
 [Issue #58]: https://github.com/chenxiaolong/MSD/issues/58
 [Issue #62]: https://github.com/chenxiaolong/MSD/issues/62
 [Issue #66]: https://github.com/chenxiaolong/MSD/issues/66
+[Issue #71]: https://github.com/chenxiaolong/MSD/issues/71
 [PR #1]: https://github.com/chenxiaolong/MSD/pull/1
 [PR #3]: https://github.com/chenxiaolong/MSD/pull/3
 [PR #4]: https://github.com/chenxiaolong/MSD/pull/4
@@ -166,3 +169,4 @@
 [PR #67]: https://github.com/chenxiaolong/MSD/pull/67
 [PR #68]: https://github.com/chenxiaolong/MSD/pull/68
 [PR #70]: https://github.com/chenxiaolong/MSD/pull/70
+[PR #72]: https://github.com/chenxiaolong/MSD/pull/72
