@@ -34,6 +34,7 @@ jobs:
         shell: bash
         run: |
           rustup target add aarch64-linux-android
+          rustup target add thumbv7neon-linux-androideabi
           rustup target add x86_64-linux-android
 
       - name: Cache Rust dependencies

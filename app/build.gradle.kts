@@ -231,6 +231,7 @@ var msdToolTasks = mutableMapOf<String, TaskProvider<Exec>>()
 
 for ((target, abi) in listOf(
     "aarch64-linux-android" to "arm64-v8a",
+    "thumbv7neon-linux-androideabi" to "armeabi-v7a",
     "x86_64-linux-android" to "x86_64",
 )) {
     val suffix = abi.split('-', '_').joinToString("") { it.uppercaseFirstChar() }
