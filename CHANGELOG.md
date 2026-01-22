@@ -9,6 +9,8 @@
 
 ### Unreleased
 
+* Update AGP to 9.0.0 ([PR #78])
+
 ### Version 1.20
 
 * Add armeabi-v7a build of msd-tool ([Issue #71], [PR #72])
@@ -172,3 +174,4 @@
 [PR #68]: https://github.com/chenxiaolong/MSD/pull/68
 [PR #70]: https://github.com/chenxiaolong/MSD/pull/70
 [PR #72]: https://github.com/chenxiaolong/MSD/pull/72
+[PR #78]: https://github.com/chenxiaolong/MSD/pull/78
