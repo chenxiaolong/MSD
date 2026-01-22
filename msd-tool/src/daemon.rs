@@ -36,7 +36,7 @@ use byteorder::{ReadBytesExt, WriteBytesExt};
 use clap::Parser;
 use rustix::{
     fs::{FileType, Gid, Mode, Uid},
-    thread::{CapabilityFlags, CapabilitySets},
+    thread::{CapabilitySet, CapabilitySets},
 };
 use tracing::{debug, error, info, info_span, warn};
 
@@ -421,7 +421,7 @@ fn drop_privileges() -> Result<()> {
         let capability_set =
             rustix::thread::capabilities(None).context("Failed to query capabilities")?;
 
-        if !capability_set.effective.contains(CapabilityFlags::CHOWN) {
+        if !capability_set.effective.contains(CapabilitySet::CHOWN) {
             bail!("CAP_CHOWN is required when running as system user");
         }
     } else if real_uid == Uid::ROOT && real_gid == Gid::ROOT {
@@ -441,9 +441,9 @@ fn drop_privileges() -> Result<()> {
     }
 
     let capability_set = CapabilitySets {
-        effective: CapabilityFlags::CHOWN,
-        permitted: CapabilityFlags::CHOWN,
-        inheritable: CapabilityFlags::empty(),
+        effective: CapabilitySet::CHOWN,
+        permitted: CapabilitySet::CHOWN,
+        inheritable: CapabilitySet::empty(),
     };
 
     rustix::thread::set_capabilities(None, capability_set)
