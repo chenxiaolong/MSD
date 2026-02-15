@@ -1,22 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    SPDX-FileCopyrightText: 2024 Andrew Gunnerson
+    SPDX-FileCopyrightText: 2024-2026 Andrew Gunnerson
     SPDX-License-Identifier: GPL-3.0-only
 -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:gravity="end|center_vertical"
-    android:orientation="horizontal"
-    android:paddingTop="16dp"
-    android:paddingBottom="16dp">
+    android:orientation="horizontal">
     <View
         android:layout_width="1dp"
-        android:layout_height="32dp"
+        android:layout_height="40dp"
         android:layout_marginStart="?android:attr/listPreferredItemPaddingStart"
         android:layout_marginEnd="?android:attr/listPreferredItemPaddingEnd"
-        android:background="?android:attr/listDivider" />
+        android:background="?attr/colorOutline" />
 
     <include layout="@layout/material_switch_preference" />
 </LinearLayout>
