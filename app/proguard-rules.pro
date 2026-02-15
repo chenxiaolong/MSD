@@ -12,7 +12,12 @@
 #   public *;
 #}
 
+# Keep log tags.
+-keepclasseswithmembers,allowoptimization,allowshrinking class com.chiller3.msd.** {
+    static final java.lang.String TAG;
+}
+
 # Keep standalone CLI utilities
 -keep class com.chiller3.msd.standalone.* {
-    *;
+    void main(java.lang.String[]);
 }
