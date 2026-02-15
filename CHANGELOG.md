@@ -12,7 +12,7 @@
 * Update AGP to 9.0.0 ([PR #78])
 * Cleanup unused UI definition ([PR #80])
 * Make the separator bar for split preferences more prominent ([PR #81])
-* Reenable default proguard optimizations ([PR #82])
+* Reenable default proguard optimizations ([PR #82], [PR #83])
   * For folks who want to decode stack traces from log files, the mapping files are now included with the official releases in `mappings.tar.zst`
 
 ### Version 1.20
@@ -182,3 +182,4 @@
 [PR #80]: https://github.com/chenxiaolong/MSD/pull/80
 [PR #81]: https://github.com/chenxiaolong/MSD/pull/81
 [PR #82]: https://github.com/chenxiaolong/MSD/pull/82
+[PR #83]: https://github.com/chenxiaolong/MSD/pull/83
