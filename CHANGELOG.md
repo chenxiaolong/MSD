@@ -11,6 +11,7 @@
 
 * Update AGP to 9.0.0 ([PR #78])
 * Cleanup unused UI definition ([PR #80])
+* Make the separator bar for split preferences more prominent ([PR #81])
 
 ### Version 1.20
 
@@ -177,3 +178,4 @@
 [PR #72]: https://github.com/chenxiaolong/MSD/pull/72
 [PR #78]: https://github.com/chenxiaolong/MSD/pull/78
 [PR #80]: https://github.com/chenxiaolong/MSD/pull/80
+[PR #81]: https://github.com/chenxiaolong/MSD/pull/81
