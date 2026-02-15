@@ -7,7 +7,7 @@
     to update the actual links at the bottom of the file.
 -->
 
-### Unreleased
+### Version 1.21
 
 * Update AGP to 9.0.0 ([PR #78])
 * Cleanup unused UI definition ([PR #80])
