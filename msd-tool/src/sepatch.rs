@@ -15,7 +15,8 @@ fn read_policy(path: &Path) -> Result<PolicyDb> {
     let data = fs::read(path).with_context(|| format!("Failed to open for reading: {path:?}"))?;
 
     let mut warnings = vec![];
-    let pdb = PolicyDb::from_raw(&data, &mut warnings).context("Failed to parse sepolicy")?;
+    let pdb = PolicyDb::from_raw(&data, &mut warnings)
+        .with_context(|| format!("Failed to parse sepolicy: {warnings:?}"))?;
 
     if !warnings.is_empty() {
         eprintln!("Warnings when loading sepolicy:");
@@ -31,7 +32,7 @@ fn write_policy(path: &Path, pdb: &PolicyDb) -> Result<()> {
     let mut warnings = vec![];
     let data = pdb
         .to_raw(&mut warnings)
-        .context("Failed to build sepolicy")?;
+        .with_context(|| format!("Failed to build sepolicy: {warnings:?}"))?;
 
     if !warnings.is_empty() {
         eprintln!("Warnings when saving sepolicy:");
