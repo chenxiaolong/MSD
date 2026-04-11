@@ -9,6 +9,8 @@
 
 ### Unreleased
 
+* msd-tool: Log libsepol's warning messages when loading or saving the SELinux policy fails ([PR #91])
+
 ### Version 1.21
 
 * Update AGP to 9.0.0 ([PR #78])
@@ -185,3 +187,4 @@
 [PR #81]: https://github.com/chenxiaolong/MSD/pull/81
 [PR #82]: https://github.com/chenxiaolong/MSD/pull/82
 [PR #83]: https://github.com/chenxiaolong/MSD/pull/83
+[PR #91]: https://github.com/chenxiaolong/MSD/pull/91
