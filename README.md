@@ -2,9 +2,6 @@
 
 <img src="app/images/icon.svg" alt="app icon" width="72" />
 
-![latest release badge](https://img.shields.io/github/v/release/chenxiaolong/MSD?sort=semver)
-![license badge](https://img.shields.io/github/license/chenxiaolong/MSD)
-
 MSD is an Android app for emulating mass storage devices over USB. It supports emulating both CD-ROM and disk devices.
 
 MSD is installed as a Magisk/KernelSU module so that it can run with system app privileges.
@@ -151,4 +148,4 @@ If you are interested in implementing a new feature and would like to see it inc
 
 ## License
 
-MSD is licensed under GPLv3. Please see [`LICENSE`](./LICENSE) for the full license text.
+MSD is licensed under GPL-3.0-only. Please see [`LICENSE`](./LICENSE) for the full license text.
