@@ -10,6 +10,7 @@
 ### Unreleased
 
 * msd-tool: Log libsepol's warning messages when loading or saving the SELinux policy fails ([PR #91])
+* msd-tool: Fix app crash in some setups due to missing userfaultfd type transition rule ([PR #95])
 
 ### Version 1.21
 
@@ -188,3 +189,4 @@
 [PR #82]: https://github.com/chenxiaolong/MSD/pull/82
 [PR #83]: https://github.com/chenxiaolong/MSD/pull/83
 [PR #91]: https://github.com/chenxiaolong/MSD/pull/91
+[PR #95]: https://github.com/chenxiaolong/MSD/pull/95
