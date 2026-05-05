@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024-2025 Andrew Gunnerson
+ * SPDX-FileCopyrightText: 2024-2026 Andrew Gunnerson
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
@@ -11,7 +11,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
 import androidx.core.os.BundleCompat
-import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
 import com.chiller3.msd.R
@@ -29,9 +28,9 @@ open class DeviceDialogFragment : DialogFragment() {
 
         fun newInstance(device: UiDeviceInfo?): DeviceDialogFragment =
             DeviceDialogFragment().apply {
-                arguments = bundleOf(
-                    ARG_DEVICE to device,
-                )
+                arguments = Bundle().apply {
+                    putParcelable(ARG_DEVICE, device)
+                }
             }
     }
 
@@ -110,6 +109,6 @@ open class DeviceDialogFragment : DialogFragment() {
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
 
-        setFragmentResult(tag!!, bundleOf(RESULT_ACTION to action))
+        setFragmentResult(tag!!, Bundle().apply { putParcelable(RESULT_ACTION, action) })
     }
 }

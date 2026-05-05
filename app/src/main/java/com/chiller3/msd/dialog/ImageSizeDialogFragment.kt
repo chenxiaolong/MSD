@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024-2025 Andrew Gunnerson
+ * SPDX-FileCopyrightText: 2024-2026 Andrew Gunnerson
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
@@ -14,7 +14,6 @@ import android.text.InputType
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.core.os.BundleCompat
-import androidx.core.os.bundleOf
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
@@ -36,14 +35,14 @@ class ImageSizeDialogFragment : DialogFragment() {
             Pattern.compile("^(\\d+)\\s*((?:[GMK]i?)?B)?$", Pattern.CASE_INSENSITIVE)
 
         fun newForCreate() = ImageSizeDialogFragment().apply {
-            arguments = bundleOf()
+            arguments = Bundle()
         }
 
         fun newForResize(uri: Uri, existingSize: Long) = ImageSizeDialogFragment().apply {
-            arguments = bundleOf(
-                ARG_URI to uri,
-                ARG_EXISTING_SIZE to existingSize,
-            )
+            arguments = Bundle().apply {
+                putParcelable(ARG_URI, uri)
+                putLong(ARG_EXISTING_SIZE, existingSize)
+            }
         }
     }
 
@@ -162,7 +161,7 @@ class ImageSizeDialogFragment : DialogFragment() {
             uri?.let { ResizeImage(it, size) } ?: CreateImage(size)
         }
 
-        setFragmentResult(tag!!, bundleOf(RESULT_ACTION to action))
+        setFragmentResult(tag!!, Bundle().apply { putParcelable(RESULT_ACTION, action) })
     }
 
     private fun refreshOkButtonEnabledState() {
