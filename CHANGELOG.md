@@ -7,6 +7,8 @@
     to update the actual links at the bottom of the file.
 -->
 
+### Unreleased
+
 ### Version 1.22
 
 * msd-tool: Log libsepol's warning messages when loading or saving the SELinux policy fails ([PR #91])
