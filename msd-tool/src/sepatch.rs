@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 use std::{
+    collections::HashMap,
     fs::{self, OpenOptions},
     io::Write,
     path::{Path, PathBuf},
@@ -197,46 +198,30 @@ pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
     let t_source = t!(n_source_type)?;
     let t_target = pdb.create_type(n_target_type, false)?.0;
 
-    pdb.copy_roles(t_source, t_target)?;
-    pdb.copy_attributes(t_source, t_target)?;
-    pdb.copy_constraints(t_source, t_target);
+    let mut type_map = HashMap::new();
+    type_map.insert(t_source, t_target);
 
     // https://android.googlesource.com/platform/system/sepolicy/+/06edcd8250a249192981c7fbeea196249394b9ad
-    let t_uffd = match t!(n_source_uffd_type) {
+    match t!(n_source_uffd_type) {
         Ok(t_source_uffd) => {
             let (t_target_uffd, _) = pdb.create_type(n_target_uffd_type, false)?;
 
-            pdb.copy_roles(t_source_uffd, t_target_uffd)?;
-            pdb.copy_attributes(t_source_uffd, t_target_uffd)?;
-            pdb.copy_constraints(t_source_uffd, t_target_uffd);
-
-            Some((t_source_uffd, t_target_uffd))
+            type_map.insert(t_source_uffd, t_target_uffd);
         }
         Err(e) => {
             eprintln!("{e}; assuming old version of Android");
-            None
         }
     };
 
-    pdb.copy_avtab_rules(Box::new(move |source_type, target_type, class| {
-        let mut new_source_type = None;
-        let mut new_target_type = None;
+    for (from, to) in &type_map {
+        pdb.copy_roles(*from, *to)?;
+        pdb.copy_attributes(*from, *to)?;
+        pdb.copy_constraints(*from, *to);
+    }
 
-        if source_type == t_source {
-            new_source_type = Some(t_target);
-        } else if let Some((t_source_uffd, t_target_uffd)) = t_uffd
-            && source_type == t_source_uffd
-        {
-            new_source_type = Some(t_target_uffd);
-        }
-
-        if target_type == t_source {
-            new_target_type = Some(t_target);
-        } else if let Some((t_source_uffd, t_target_uffd)) = t_uffd
-            && target_type == t_source_uffd
-        {
-            new_target_type = Some(t_target_uffd);
-        }
+    pdb.copy_avtab_rules(&|source_type, target_type| {
+        let new_source_type = type_map.get(&source_type).copied();
+        let new_target_type = type_map.get(&target_type).copied();
 
         if new_source_type.is_none() && new_target_type.is_none() {
             None
@@ -244,10 +229,24 @@ pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
             Some((
                 new_source_type.unwrap_or(source_type),
                 new_target_type.unwrap_or(target_type),
-                class,
             ))
         }
-    }))?;
+    })?;
+    pdb.copy_filename_trans_rules(&|source_type, file_type, trans_type| {
+        let new_source_type = type_map.get(&source_type).copied();
+        let new_file_type = type_map.get(&file_type).copied();
+        let new_trans_type = type_map.get(&trans_type).copied();
+
+        if new_source_type.is_none() && new_file_type.is_none() && new_trans_type.is_none() {
+            None
+        } else {
+            Some((
+                new_source_type.unwrap_or(source_type),
+                new_file_type.unwrap_or(file_type),
+                new_trans_type.unwrap_or(trans_type),
+            ))
+        }
+    });
 
     // Create a new type for running the daemon.
 
@@ -261,13 +260,13 @@ pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
     // type of `self`, which means they were expanded at compile time. Since we
     // no longer have a record of these rules, we use some heuristics to copy
     // them from an existing type.
-    pdb.copy_avtab_rules(Box::new(move |source_type, target_type, class| {
+    pdb.copy_avtab_rules(&|source_type, target_type| {
         if source_type == t_hal_usb_gadget_default && target_type == t_hal_usb_gadget_default {
-            Some((t_daemon, t_daemon, class))
+            Some((t_daemon, t_daemon))
         } else {
             None
         }
-    }))?;
+    })?;
 
     // Allow executing the daemon binary.
     for perm in [p_file_entrypoint, p_file_execute, p_file_map, p_file_read] {
