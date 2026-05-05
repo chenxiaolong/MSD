@@ -12,6 +12,7 @@
 * msd-tool: Log libsepol's warning messages when loading or saving the SELinux policy fails ([PR #91])
 * msd-tool: Fix app crash in some setups due to missing userfaultfd type transition rule ([PR #95])
 * Update dependencies ([PR #96])
+* Remove usage of deprecated `bundleOf()` function ([PR #97])
 
 ### Version 1.21
 
@@ -192,3 +193,4 @@
 [PR #91]: https://github.com/chenxiaolong/MSD/pull/91
 [PR #95]: https://github.com/chenxiaolong/MSD/pull/95
 [PR #96]: https://github.com/chenxiaolong/MSD/pull/96
+[PR #97]: https://github.com/chenxiaolong/MSD/pull/97
