@@ -71,6 +71,36 @@ To monitor the daemon's logs, run `adb logcat -v color -s msd-tool` or look at `
 
 When reporting bugs, please include all of the logs as they are extremely helpful for identifying what might be going wrong.
 
+### CLI
+
+MSD's functionality can also be accessed from the command line via the `msd-tool` executable. If installed via the module, the executable is in `/data/adb/modules/com.chiller3.msd/msd-tool.arm64-v8a`.
+
+To list all active USB gadget functions:
+
+```bash
+msd-tool client get-functions
+```
+
+To list all configured mass storage devices:
+
+```bash
+msd-tool client get-mass-storage
+```
+
+To set up mass storage devices:
+
+```bash
+msd-tool client set-mass-storage -t {cdrom|disk-ro|disk-rw} -f /path/to/file.img
+```
+
+`-t` and `-f` can be specified multiple times to create multiple mass storage devices.
+
+To clear all mass storage devices:
+
+```bash
+msd-tool client set-mass-storage
+```
+
 ## Verifying digital signatures
 
 Both the zip file and the APK contained within are digitally signed.
