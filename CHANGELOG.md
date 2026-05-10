@@ -9,6 +9,8 @@
 
 ### Unreleased
 
+* Fix titles of switch preferences being truncated when they don't fit ([PR #99])
+
 ### Version 1.22
 
 * msd-tool: Log libsepol's warning messages when loading or saving the SELinux policy fails ([PR #91])
@@ -196,3 +198,4 @@
 [PR #95]: https://github.com/chenxiaolong/MSD/pull/95
 [PR #96]: https://github.com/chenxiaolong/MSD/pull/96
 [PR #97]: https://github.com/chenxiaolong/MSD/pull/97
+[PR #99]: https://github.com/chenxiaolong/MSD/pull/99
