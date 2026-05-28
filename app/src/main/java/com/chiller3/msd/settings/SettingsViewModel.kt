@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024-2025 Andrew Gunnerson
+ * SPDX-FileCopyrightText: 2024-2026 Andrew Gunnerson
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
@@ -41,6 +41,10 @@ sealed interface Alert {
     data class CreateImageFailure(val error: String) : Alert
 
     data class ResizeImageFailure(val error: String) : Alert
+
+    data object BrowserNotFound : Alert
+
+    data object DocumentsUINotFound : Alert
 }
 
 private val Throwable.alertMessage: String
@@ -53,6 +57,16 @@ private val Throwable.alertMessage: String
 class SettingsViewModel(application: Application) : AndroidViewModel(application) {
     companion object {
         private val TAG = SettingsViewModel::class.java.simpleName
+
+        private fun sortDevices(devices: MutableList<UiDeviceInfo>) {
+            devices.sortWith { a, b ->
+                if (a.localPath != null && b.localPath != null) {
+                    a.localPath.compareTo(b.localPath)
+                } else {
+                    a.uri.compareTo(b.uri)
+                }
+            }
+        }
 
         @WorkerThread
         private fun getLocalPath(pfd: ParcelFileDescriptor): String =
@@ -172,6 +186,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                     ))
                 }
 
+                sortDevices(devices)
+
                 _activeFunctions.update { functions }
                 _devices.update { devices }
             }
@@ -224,6 +240,8 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
                         Intent.FLAG_GRANT_READ_URI_PERMISSION
                     )
                 }
+
+                sortDevices(newDevices)
 
                 _devices.update { newDevices }
 
@@ -332,5 +350,9 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     fun acknowledgeFirstAlert() {
         _alerts.update { it.drop(1) }
+    }
+
+    fun addAlert(alert: Alert) {
+        _alerts.update { it + alert }
     }
 }

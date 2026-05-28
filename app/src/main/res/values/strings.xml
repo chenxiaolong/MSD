@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    SPDX-FileCopyrightText: 2024-2025 Andrew Gunnerson
+    SPDX-FileCopyrightText: 2024-2026 Andrew Gunnerson
     SPDX-License-Identifier: GPL-3.0-only
 -->
 <resources>
@@ -40,6 +40,8 @@
     <string name="alert_not_local_file_details">The image could not be added because it is not a local file. Even if the third party app goes through the effort to provide a file descriptor supporting random access, Android\'s limitations on reopening files prevents it from being used.</string>
     <string name="alert_create_image_failure">Failed to create new writable disk image.</string>
     <string name="alert_resize_image_failure">Failed to resize writable disk image.</string>
+    <string name="alert_browser_not_found">No web browser is available.</string>
+    <string name="alert_documentsui_not_found">Android\'s builtin file manager (DocumentsUI) is unavailable.</string>
 
     <!-- Add device dialog -->
     <string name="dialog_device_title_add">Add new device</string>

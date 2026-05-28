@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 Andrew Gunnerson
+ * SPDX-FileCopyrightText: 2024-2026 Andrew Gunnerson
  * SPDX-License-Identifier: GPL-3.0-only
  */
 
@@ -12,18 +12,8 @@ import com.chiller3.msd.settings.DeviceInfo
 
 class Preferences(context: Context) {
     companion object {
-        const val CATEGORY_DEVICES = "devices"
-        const val CATEGORY_DEBUG = "debug"
-
-        const val PREF_ADD_DEVICE = "add_device"
-        const val PREF_DEVICE_PREFIX = "device_"
-        const val PREF_ACTIVE_FUNCTIONS = "active_functions"
-        const val PREF_APPLY_SETTINGS = "apply_settings"
-
-        const val PREF_VERSION = "version"
-        const val PREF_OPEN_LOG_DIR = "open_log_dir"
-
-        // Not associated with a UI preference
+        // Keep in the same order as the helper functions below.
+        private const val PREF_DEVICE_PREFIX = "device_"
         private const val PREF_DEBUG_MODE = "debug_mode"
     }
 

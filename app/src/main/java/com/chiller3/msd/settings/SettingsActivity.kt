@@ -1,51 +1,25 @@
 /*
- * SPDX-FileCopyrightText: 2022-2024 Andrew Gunnerson
+ * SPDX-FileCopyrightText: 2022-2026 Andrew Gunnerson
  * SPDX-License-Identifier: GPL-3.0-only
- * Based on BCR code.
  */
 
 package com.chiller3.msd.settings
 
 import android.os.Bundle
-import android.view.ViewGroup
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updateLayoutParams
-import com.chiller3.msd.R
-import com.chiller3.msd.databinding.SettingsActivityBinding
+import com.chiller3.msd.ui.theme.AppTheme
 
-class SettingsActivity : AppCompatActivity() {
+class SettingsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
 
-        val binding = SettingsActivityBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        if (savedInstanceState == null) {
-            supportFragmentManager
-                    .beginTransaction()
-                    .replace(R.id.settings, SettingsFragment())
-                    .commit()
-        }
-
-        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbar) { v, windowInsets ->
-            val insets = windowInsets.getInsets(
-                WindowInsetsCompat.Type.systemBars()
-                        or WindowInsetsCompat.Type.displayCutout()
-            )
-
-            v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                leftMargin = insets.left
-                topMargin = insets.top
-                rightMargin = insets.right
+        setContent {
+            AppTheme {
+                SettingsScreen()
             }
-
-            WindowInsetsCompat.CONSUMED
         }
-
-        setSupportActionBar(binding.toolbar)
     }
 }
