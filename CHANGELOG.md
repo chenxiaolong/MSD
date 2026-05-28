@@ -9,6 +9,7 @@
 
 ### Unreleased
 
+* Port UI to Jetpack Compose and adopt Material 3 Expressive styling ([PR #102])
 * Fix titles of switch preferences being truncated when they don't fit ([PR #99])
 
 ### Version 1.22
@@ -199,3 +200,4 @@
 [PR #96]: https://github.com/chenxiaolong/MSD/pull/96
 [PR #97]: https://github.com/chenxiaolong/MSD/pull/97
 [PR #99]: https://github.com/chenxiaolong/MSD/pull/99
+[PR #102]: https://github.com/chenxiaolong/MSD/pull/102
