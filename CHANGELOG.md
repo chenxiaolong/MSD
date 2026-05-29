@@ -9,6 +9,8 @@
 
 ### Unreleased
 
+* Fix missing title in error details dialog ([PR #105])
+
 ### Version 2.0
 
 * Port UI to Jetpack Compose and adopt Material 3 Expressive styling ([PR #102])
@@ -205,3 +207,4 @@
 [PR #99]: https://github.com/chenxiaolong/MSD/pull/99
 [PR #102]: https://github.com/chenxiaolong/MSD/pull/102
 [PR #103]: https://github.com/chenxiaolong/MSD/pull/103
+[PR #105]: https://github.com/chenxiaolong/MSD/pull/105
