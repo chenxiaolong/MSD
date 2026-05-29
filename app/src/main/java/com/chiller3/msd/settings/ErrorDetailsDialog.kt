@@ -17,11 +17,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.DialogProperties
+import com.chiller3.msd.R
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ErrorDetailsDialog(
-    title: String?,
     message: String?,
     onDismiss: () -> Unit,
 ) {
@@ -29,9 +29,7 @@ fun ErrorDetailsDialog(
 
     AlertDialog(
         title = {
-            title?.let {
-                Text(text = it)
-            }
+            Text(text = stringResource(R.string.dialog_error_details_title))
         },
         text = {
             message?.let {

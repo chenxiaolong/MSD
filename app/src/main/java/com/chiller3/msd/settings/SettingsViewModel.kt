@@ -24,6 +24,7 @@ import com.chiller3.msd.extension.toSingleLineString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -99,16 +100,16 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
     private var operationsInProgress = 0
 
     private val _alerts = MutableStateFlow<List<Alert>>(emptyList())
-    val alerts: StateFlow<List<Alert>> = _alerts
+    val alerts = _alerts.asStateFlow()
 
     private val _canAct = MutableStateFlow(false)
-    val canAct: StateFlow<Boolean> = _canAct
+    val canAct = _canAct.asStateFlow()
 
     private val _devices = MutableStateFlow<List<UiDeviceInfo>>(emptyList())
-    val devices: StateFlow<List<UiDeviceInfo>> = _devices
+    val devices = _devices.asStateFlow()
 
     private val _activeFunctions = MutableStateFlow<Map<String, String>>(emptyMap())
-    val activeFunctions: StateFlow<Map<String, String>> = _activeFunctions
+    val activeFunctions = _activeFunctions.asStateFlow()
 
     init {
         refreshUsbState()

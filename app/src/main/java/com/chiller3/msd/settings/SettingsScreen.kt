@@ -147,7 +147,6 @@ fun SettingsScreen(viewModel: SettingsViewModel = viewModel()) {
 
         showErrorDialog?.let { message ->
             ErrorDetailsDialog(
-                title = null,
                 message = message,
                 onDismiss = { showErrorDialog = null },
             )
