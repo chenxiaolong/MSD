@@ -163,7 +163,6 @@ android {
     buildFeatures {
         buildConfig = true
         compose = true
-        viewBinding = true
     }
     lint {
         // The translations are always going to lag behind new strings being

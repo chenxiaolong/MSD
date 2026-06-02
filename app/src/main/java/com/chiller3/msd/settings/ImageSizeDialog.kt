@@ -12,16 +12,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
@@ -57,8 +55,8 @@ fun ImageSizeDialog(
     onSelect: (ImageSizeResult) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    var input by rememberSaveable { mutableStateOf("") }
-    val parsed = tryParseInput(input, action)
+    val input = rememberTextFieldState()
+    val parsed = tryParseInput(input.text.toString(), action)
 
     AlertDialog(
         title = { Text(text = stringResource(R.string.dialog_image_size_title)) },
@@ -67,9 +65,8 @@ fun ImageSizeDialog(
                 Text(text = buildMessage(action))
 
                 OutlinedTextField(
+                    state = input,
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                    value = input,
-                    onValueChange = { input = it },
                     suffix = {
                         if (parsed is ImageSizeParse.Value) {
                             Text(text = parsed.suffix)
@@ -85,6 +82,7 @@ fun ImageSizeDialog(
                         capitalization = KeyboardCapitalization.None,
                         autoCorrectEnabled = false,
                     ),
+                    lineLimits = TextFieldLineLimits.SingleLine,
                 )
             }
         },
