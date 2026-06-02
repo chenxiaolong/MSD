@@ -9,7 +9,7 @@
 
 ### Unreleased
 
-* Fix missing title in error details dialog ([PR #105])
+* Minor fixes for new Compose UI ([PR #105], [PR #106])
 
 ### Version 2.0
 
@@ -208,3 +208,4 @@
 [PR #102]: https://github.com/chenxiaolong/MSD/pull/102
 [PR #103]: https://github.com/chenxiaolong/MSD/pull/103
 [PR #105]: https://github.com/chenxiaolong/MSD/pull/105
+[PR #106]: https://github.com/chenxiaolong/MSD/pull/106
