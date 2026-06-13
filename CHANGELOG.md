@@ -7,7 +7,7 @@
     to update the actual links at the bottom of the file.
 -->
 
-### Unreleased
+### Version 2.1
 
 * Minor fixes for new Compose UI ([PR #105], [PR #106])
 * Remove sdcardfs check since some non-sdcardfs setups require the `media_rw` supplemental group ([Issue #107], [PR #108])
