@@ -27,6 +27,10 @@ ps -efZ > "${log_dir}"/ps.log
 
 cp /proc/self/mountinfo "${log_dir}"/mountinfo.log
 
+cp /proc/filesystems "${log_dir}"/filesystems.log
+
+getprop > "${log_dir}"/properties.log
+
 /system/bin/dmesg -w | grep avc: > "${log_dir}"/audit.log &
 
 logcat -s msd-tool > "${log_dir}"/msd-tool.log &
