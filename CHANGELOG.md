@@ -10,6 +10,7 @@
 ### Unreleased
 
 * Minor fixes for new Compose UI ([PR #105], [PR #106])
+* Remove sdcardfs check since some non-sdcardfs setups require the `media_rw` supplemental group ([Issue #107], [PR #108])
 
 ### Version 2.0
 
@@ -152,6 +153,7 @@
 [Issue #62]: https://github.com/chenxiaolong/MSD/issues/62
 [Issue #66]: https://github.com/chenxiaolong/MSD/issues/66
 [Issue #71]: https://github.com/chenxiaolong/MSD/issues/71
+[Issue #107]: https://github.com/chenxiaolong/MSD/issues/107
 [PR #1]: https://github.com/chenxiaolong/MSD/pull/1
 [PR #3]: https://github.com/chenxiaolong/MSD/pull/3
 [PR #4]: https://github.com/chenxiaolong/MSD/pull/4
@@ -209,3 +211,4 @@
 [PR #103]: https://github.com/chenxiaolong/MSD/pull/103
 [PR #105]: https://github.com/chenxiaolong/MSD/pull/105
 [PR #106]: https://github.com/chenxiaolong/MSD/pull/106
+[PR #108]: https://github.com/chenxiaolong/MSD/pull/108
