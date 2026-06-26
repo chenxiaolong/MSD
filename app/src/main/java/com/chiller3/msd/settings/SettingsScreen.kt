@@ -365,11 +365,9 @@ private fun SettingsContent(
                     }
                 }
 
-                @Suppress("AssignedValueIsNeverRead")
                 showDeviceDialog = null
             },
             onDismiss = {
-                @Suppress("AssignedValueIsNeverRead")
                 showDeviceDialog = null
             },
         )
@@ -384,11 +382,9 @@ private fun SettingsContent(
                     is ImageSizeResult.Resize -> onImageResize(result.uri, result.size)
                 }
 
-                @Suppress("AssignedValueIsNeverRead")
                 showImageSizeDialog = null
             },
             onDismiss = {
-                @Suppress("AssignedValueIsNeverRead")
                 showImageSizeDialog = null
             },
         )
