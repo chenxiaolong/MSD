@@ -1,6 +1,6 @@
 {
-    "zipUrl": "https://github.com/chenxiaolong/MSD/releases/download/v2.0/MSD-2.0-release.zip",
-    "changelog": "https://github.com/chenxiaolong/MSD/raw/v2.0/app/module/updates/release/changelog.txt",
-    "version": "2.0",
-    "versionCode": 131072
+    "zipUrl": "https://github.com/chenxiaolong/MSD/releases/download/v2.2/MSD-2.2-release.zip",
+    "changelog": "https://github.com/chenxiaolong/MSD/raw/v2.2/app/module/updates/release/changelog.txt",
+    "version": "2.2",
+    "versionCode": 131584
 }
