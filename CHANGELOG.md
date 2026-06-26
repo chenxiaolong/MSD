@@ -7,7 +7,7 @@
     to update the actual links at the bottom of the file.
 -->
 
-### Unreleased
+### Version 2.2
 
 * Update target API version to API 37 (Android 17) ([PR #109])
 
