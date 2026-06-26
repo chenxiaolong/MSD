@@ -7,6 +7,10 @@
     to update the actual links at the bottom of the file.
 -->
 
+### Unreleased
+
+* Update target API version to API 37 (Android 17) ([PR #109])
+
 ### Version 2.1
 
 * Minor fixes for new Compose UI ([PR #105], [PR #106])
@@ -212,3 +216,4 @@
 [PR #105]: https://github.com/chenxiaolong/MSD/pull/105
 [PR #106]: https://github.com/chenxiaolong/MSD/pull/106
 [PR #108]: https://github.com/chenxiaolong/MSD/pull/108
+[PR #109]: https://github.com/chenxiaolong/MSD/pull/109
