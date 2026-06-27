@@ -39,8 +39,12 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -184,12 +188,14 @@ fun Preference(
 private fun PreferenceSwitch(
     checked: Boolean,
     onCheckedChange: ((Boolean) -> Unit)?,
+    modifier: Modifier = Modifier,
     enabled: Boolean = true,
     switchColors: SwitchColors = PreferenceDefaults.switchColors(),
 ) {
     Switch(
         checked = checked,
         onCheckedChange = onCheckedChange,
+        modifier = modifier,
         enabled = enabled,
         thumbContent = {
             Icon(
@@ -219,10 +225,17 @@ fun SplitSwitchPreference(
     switchColors: SwitchColors = PreferenceDefaults.switchColors(),
     title: @Composable () -> Unit,
 ) {
+    val preferenceFocus = remember { FocusRequester() }
+    val switchFocus = remember { FocusRequester() }
+
     SegmentedListItem(
         onClick = onClick,
         shapes = shapes,
-        modifier = Modifier.widthIn(max = PreferenceDefaults.MaxWidth).then(modifier),
+        modifier = Modifier
+            .widthIn(max = PreferenceDefaults.MaxWidth)
+            .focusRequester(preferenceFocus)
+            .focusProperties { end = switchFocus }
+            .then(modifier),
         enabled = enabled,
         trailingContent = {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -248,12 +261,15 @@ fun SplitSwitchPreference(
                             width = PreferenceDefaults.DividerWidth,
                             height = PreferenceDefaults.DividerHeight,
                         )
-                        .background(color = supportingContentColor)
+                        .background(color = supportingContentColor),
                 )
 
                 PreferenceSwitch(
                     checked = checked,
                     onCheckedChange = onCheckedChange,
+                    modifier = Modifier
+                        .focusRequester(switchFocus)
+                        .focusProperties { start = preferenceFocus },
                     enabled = enabled,
                     switchColors = switchColors,
                 )
