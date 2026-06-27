@@ -9,6 +9,8 @@
 
 ### Unreleased
 
+* Add sysconfig file with `<allowed-system-preload>` option for compatibility with OneUI 8.5 ([Issue #110], [PR #111])
+
 ### Version 2.2
 
 * Update target API version to API 37 (Android 17) ([PR #109])
@@ -160,6 +162,7 @@
 [Issue #66]: https://github.com/chenxiaolong/MSD/issues/66
 [Issue #71]: https://github.com/chenxiaolong/MSD/issues/71
 [Issue #107]: https://github.com/chenxiaolong/MSD/issues/107
+[Issue #110]: https://github.com/chenxiaolong/MSD/issues/110
 [PR #1]: https://github.com/chenxiaolong/MSD/pull/1
 [PR #3]: https://github.com/chenxiaolong/MSD/pull/3
 [PR #4]: https://github.com/chenxiaolong/MSD/pull/4
@@ -219,3 +222,4 @@
 [PR #106]: https://github.com/chenxiaolong/MSD/pull/106
 [PR #108]: https://github.com/chenxiaolong/MSD/pull/108
 [PR #109]: https://github.com/chenxiaolong/MSD/pull/109
+[PR #111]: https://github.com/chenxiaolong/MSD/pull/111
