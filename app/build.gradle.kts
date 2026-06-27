@@ -343,6 +343,23 @@ androidComponents.onVariants { variant ->
         }
     }
 
+    val configXml = tasks.register("configXml${capitalized}") {
+        inputs.property("variant.applicationId", variant.applicationId)
+
+        val outputFile = variantDir.map { it.file("config-${variant.applicationId.get()}.xml") }
+        outputs.file(outputFile)
+
+        doLast {
+            outputFile.get().asFile.writeText("""
+                <?xml version="1.0" encoding="utf-8"?>
+                <config>
+                    <!-- This is a non-standard tag required by Samsung OneUI 8.5. -->
+                    <allowed-system-preload package="${variant.applicationId.get()}" />
+                </config>
+            """.trimIndent())
+        }
+    }
+
     val seappContexts = tasks.register("seappContexts${capitalized}") {
         inputs.property("variant.applicationId", variant.applicationId)
 
@@ -377,6 +394,9 @@ androidComponents.onVariants { variant ->
         isReproducibleFileOrder = true
 
         from(moduleProp.map { it.outputs })
+        from(configXml.map { it.outputs }) {
+            into("system/etc/sysconfig")
+        }
         from(seappContexts.map { it.outputs })
         from(variantApkFiles) {
             into("system/priv-app/${variant.applicationId.get()}")
