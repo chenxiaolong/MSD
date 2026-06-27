@@ -9,6 +9,8 @@
 
 ### Unreleased
 
+* Make the switch in the split switch preferences focusable with a keyboard or remote ([PR #112])
+
 ### Version 2.3
 
 * Add sysconfig file with `<allowed-system-preload>` option for compatibility with OneUI 8.5 ([Issue #110], [PR #111])
@@ -225,3 +227,4 @@
 [PR #108]: https://github.com/chenxiaolong/MSD/pull/108
 [PR #109]: https://github.com/chenxiaolong/MSD/pull/109
 [PR #111]: https://github.com/chenxiaolong/MSD/pull/111
+[PR #112]: https://github.com/chenxiaolong/MSD/pull/112
