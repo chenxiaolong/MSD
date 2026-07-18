@@ -11,6 +11,7 @@
 
 * Make the switch in the split switch preferences focusable with a keyboard or remote ([PR #112])
 * Update dynamic background color to match AOSP Settings ([PR #114])
+* Update dependencies ([PR #115])
 
 ### Version 2.3
 
@@ -230,3 +231,4 @@
 [PR #111]: https://github.com/chenxiaolong/MSD/pull/111
 [PR #112]: https://github.com/chenxiaolong/MSD/pull/112
 [PR #114]: https://github.com/chenxiaolong/MSD/pull/114
+[PR #115]: https://github.com/chenxiaolong/MSD/pull/115
