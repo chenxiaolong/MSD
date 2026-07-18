@@ -7,6 +7,8 @@
     to update the actual links at the bottom of the file.
 -->
 
+### Unreleased
+
 ### Version 2.4
 
 * Make the switch in the split switch preferences focusable with a keyboard or remote ([PR #112])
