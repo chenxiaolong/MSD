@@ -10,6 +10,7 @@
 ### Unreleased
 
 * Add support for building the app on non-Linux systems ([PR #119])
+* Update dependencies ([PR #120])
 
 ### Version 2.4
 
@@ -237,3 +238,4 @@
 [PR #114]: https://github.com/chenxiaolong/MSD/pull/114
 [PR #115]: https://github.com/chenxiaolong/MSD/pull/115
 [PR #119]: https://github.com/chenxiaolong/MSD/pull/119
+[PR #120]: https://github.com/chenxiaolong/MSD/pull/120
