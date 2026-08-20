@@ -9,6 +9,8 @@
 
 ### Unreleased
 
+* Add support for building the app on non-Linux systems ([PR #119])
+
 ### Version 2.4
 
 * Make the switch in the split switch preferences focusable with a keyboard or remote ([PR #112])
@@ -234,3 +236,4 @@
 [PR #112]: https://github.com/chenxiaolong/MSD/pull/112
 [PR #114]: https://github.com/chenxiaolong/MSD/pull/114
 [PR #115]: https://github.com/chenxiaolong/MSD/pull/115
+[PR #119]: https://github.com/chenxiaolong/MSD/pull/119
