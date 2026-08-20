@@ -131,6 +131,7 @@ Make sure the [Rust toolchain](https://www.rust-lang.org/) is installed. Rust mu
 
 ```bash
 rustup target add aarch64-linux-android
+rustup target add thumbv7neon-linux-androideabi
 rustup target add x86_64-linux-android
 ```
 
