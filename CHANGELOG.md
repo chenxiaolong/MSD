@@ -10,6 +10,7 @@
 ### Unreleased
 
 * Add support for building the app on non-Linux systems ([PR #119])
+* Enable MTE on supported devices ([PR #123])
 * Update dependencies ([PR #120])
 
 ### Version 2.4
@@ -239,3 +240,4 @@
 [PR #115]: https://github.com/chenxiaolong/MSD/pull/115
 [PR #119]: https://github.com/chenxiaolong/MSD/pull/119
 [PR #120]: https://github.com/chenxiaolong/MSD/pull/120
+[PR #123]: https://github.com/chenxiaolong/MSD/pull/123
