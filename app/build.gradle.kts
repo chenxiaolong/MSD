@@ -121,7 +121,7 @@ android {
 
     compileSdk = 37
     buildToolsVersion = "37.0.0"
-    ndkVersion = "29.0.14206865"
+    ndkVersion = "30.0.16248370"
 
     defaultConfig {
         applicationId = "com.chiller3.msd"
@@ -290,7 +290,7 @@ for ((target, abi) in rustTargetMap) {
             "ANDROID_NDK_ROOT" to LazyString(androidComponents.sdkComponents.ndkDirectory
                 .map { it.asFile.absolutePath }),
             "ANDROID_API" to android.defaultConfig.minSdk!!,
-            "RUSTFLAGS" to "-C strip=symbols -C target-feature=+crt-static",
+            "RUSTFLAGS" to "-C strip=symbols -C target-feature=+crt-static -C link-arg=-Wl,--allow-multiple-definition",
         )
 
         workingDir(srcDir)
