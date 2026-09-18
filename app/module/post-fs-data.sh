@@ -24,6 +24,7 @@ mkdir -p "${mod_dir}/system/etc/selinux"
 paste -s -d '\n' \
     /system/etc/selinux/plat_seapp_contexts \
     /data/adb/modules/*/plat_seapp_contexts \
+    | awk '!seen[$0]++' \
     > "${mod_dir}/system/etc/selinux/plat_seapp_contexts"
 
 # On some devices, the system time is set too late in the boot process. This,
