@@ -12,7 +12,7 @@
 * Add support for building the app on non-Linux systems ([PR #119])
 * Enable MTE on supported devices ([PR #123])
 * Improve compatibility with KernelSU metamodules that previously could lead to boot loops ([Issue #118], [PR #125])
-* Update dependencies ([PR #120], [PR #124])
+* Update dependencies ([PR #120], [PR #124], [PR #126])
 
 ### Version 2.4
 
@@ -245,3 +245,4 @@
 [PR #123]: https://github.com/chenxiaolong/MSD/pull/123
 [PR #124]: https://github.com/chenxiaolong/MSD/pull/124
 [PR #125]: https://github.com/chenxiaolong/MSD/pull/125
+[PR #126]: https://github.com/chenxiaolong/MSD/pull/126
