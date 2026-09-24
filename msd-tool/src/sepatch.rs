@@ -414,6 +414,13 @@ pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
     // to use the Android 10 AVD.
     if let Some(target) = pdb.get_type_id("mediaprovider_app") {
         fuse_process_types.push(target);
+
+        // FUSE passthrough performs backing-file I/O with MediaProvider's
+        // credentials. The USB mass-storage worker can therefore need the
+        // reverse FD permission for a file reopened by this daemon. Without
+        // it, configuring the LUN succeeds but host reads fail with an AVC
+        // (mediaprovider_app -> msd_daemon, fd use).
+        pdb.set_rule(target, t_daemon, c_fd, p_fd_use, RuleAction::Allow);
     }
     for target in fuse_process_types {
         pdb.set_rule(t_daemon, target, c_fd, p_fd_use, RuleAction::Allow);
