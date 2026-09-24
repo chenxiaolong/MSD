@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 use std::{
-    collections::HashMap,
     fs::{self, OpenOptions},
     io::Write,
     path::{Path, PathBuf},
@@ -75,9 +74,6 @@ pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
     let mut pdb = read_policy(cli.source.as_path())?;
 
     let n_source_type = "untrusted_app";
-    let n_source_uffd_type = "untrusted_app_userfaultfd";
-    let n_target_type = "msd_app";
-    let n_target_uffd_type = "msd_app_userfaultfd";
     let n_daemon_type = "msd_daemon";
 
     macro_rules! r {
@@ -193,60 +189,9 @@ pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
     let c_unix_stream_socket = c!("unix_stream_socket")?;
     let p_unix_stream_socket_connectto = p!(c_unix_stream_socket, "connectto")?;
 
-    // Make msd_app a copy of untrusted_app.
-
-    let t_source = t!(n_source_type)?;
-    let t_target = pdb.create_type(n_target_type, false)?.0;
-
-    let mut type_map = HashMap::new();
-    type_map.insert(t_source, t_target);
-
-    // https://android.googlesource.com/platform/system/sepolicy/+/06edcd8250a249192981c7fbeea196249394b9ad
-    match t!(n_source_uffd_type) {
-        Ok(t_source_uffd) => {
-            let (t_target_uffd, _) = pdb.create_type(n_target_uffd_type, false)?;
-
-            type_map.insert(t_source_uffd, t_target_uffd);
-        }
-        Err(e) => {
-            eprintln!("{e}; assuming old version of Android");
-        }
-    };
-
-    for (from, to) in &type_map {
-        pdb.copy_roles(*from, *to)?;
-        pdb.copy_attributes(*from, *to)?;
-        pdb.copy_constraints(*from, *to);
-    }
-
-    pdb.copy_avtab_rules(&|source_type, target_type| {
-        let new_source_type = type_map.get(&source_type).copied();
-        let new_target_type = type_map.get(&target_type).copied();
-
-        if new_source_type.is_none() && new_target_type.is_none() {
-            None
-        } else {
-            Some((
-                new_source_type.unwrap_or(source_type),
-                new_target_type.unwrap_or(target_type),
-            ))
-        }
-    })?;
-    pdb.copy_filename_trans_rules(&|source_type, file_type, trans_type| {
-        let new_source_type = type_map.get(&source_type).copied();
-        let new_file_type = type_map.get(&file_type).copied();
-        let new_trans_type = type_map.get(&trans_type).copied();
-
-        if new_source_type.is_none() && new_file_type.is_none() && new_trans_type.is_none() {
-            None
-        } else {
-            Some((
-                new_source_type.unwrap_or(source_type),
-                new_file_type.unwrap_or(file_type),
-                new_trans_type.unwrap_or(trans_type),
-            ))
-        }
-    });
+    // Use a stock app domain so KernelSU SELinux Hide can validate it against
+    // its original policy. The daemon authenticates clients independently.
+    let t_target = t!(n_source_type)?;
 
     // Create a new type for running the daemon.
 
@@ -254,6 +199,32 @@ pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
     pdb.add_to_role(r_r, t_daemon)?;
     pdb.set_attribute(t_daemon, t_domain, true)?;
     pdb.set_attribute(t_daemon, t_mlstrustedsubject, true)?;
+
+    // The root app_process supervisor only exchanges UID decisions through
+    // inherited anonymous pipes. The daemon gets no Package Manager privileges.
+    let c_fifo = c!("fifo_file")?;
+    let p_sigchld = p!(c_process, "sigchld")?;
+    for name in ["ksu", "su", "magisk", "init"] {
+        if let Some(supervisor) = pdb.get_type_id(name) {
+            pdb.set_rule(t_daemon, supervisor, c_fd, p_fd_use, RuleAction::Allow);
+            pdb.set_rule(
+                t_daemon,
+                supervisor,
+                c_process,
+                p_sigchld,
+                RuleAction::Allow,
+            );
+            for name in ["read", "write", "getattr"] {
+                pdb.set_rule(
+                    t_daemon,
+                    supervisor,
+                    c_fifo,
+                    p!(c_fifo, name)?,
+                    RuleAction::Allow,
+                );
+            }
+        }
+    }
 
     // Setting the `domain` attribute isn't sufficient to grab many of the
     // "standard" rules. These are defined in the sepolicy source with a target
@@ -451,7 +422,8 @@ pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
         RuleAction::Deny,
     );
 
-    // Allow the client to connect to daemon.
+    // Shared app-domain connectivity is gated by certificate + UID checks in
+    // the daemon, before the protocol handshake or any request is processed.
     pdb.set_rule(
         t_target,
         t_daemon,
@@ -459,6 +431,8 @@ pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
         p_unix_stream_socket_connectto,
         RuleAction::Allow,
     );
+
+    pdb.set_rule(t_daemon, t_target, c_fd, p_fd_use, RuleAction::Allow);
 
     // Unprivileged execution of `msd-tool client` is denied by default to
     // reduce the attack surface.

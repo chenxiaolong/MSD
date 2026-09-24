@@ -14,6 +14,8 @@ import org.eclipse.jgit.lib.ObjectId
 import org.gradle.kotlin.dsl.support.uppercaseFirstChar
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.json.JSONObject
+import java.security.KeyStore
+import java.security.MessageDigest
 
 plugins {
     alias(libs.plugins.android.application)
@@ -381,10 +383,30 @@ androidComponents.onVariants { variant ->
                 "user=_app",
                 "isPrivApp=true",
                 "name=${variant.applicationId.get()}",
-                "domain=msd_app",
+                "domain=untrusted_app",
                 "type=app_data_file",
                 "levelFrom=all",
             ).joinToString(" "))
+        }
+    }
+
+    val clientCertificate = tasks.register("clientCertificate${capitalized}") {
+        dependsOn("assemble${capitalized}")
+        val certificateFile = variantDir.map { it.file("client-cert.sha256") }
+        outputs.file(certificateFile)
+        // Always recheck the signing configuration rather than reusing a stale pin.
+        outputs.upToDateWhen { false }
+        doLast {
+            val signing = android.buildTypes.getByName(variant.name).signingConfig!!
+            val store = KeyStore.getInstance(signing.storeType ?: "JKS")
+            signing.storeFile!!.inputStream().use {
+                store.load(it, signing.storePassword!!.toCharArray())
+            }
+            val digest = MessageDigest.getInstance("SHA-256")
+                .digest(store.getCertificate(signing.keyAlias!!).encoded)
+            certificateFile.get().asFile.writeText(digest.joinToString("") {
+                "%02x".format(it.toInt() and 0xff)
+            } + "\n")
         }
     }
 
@@ -404,6 +426,7 @@ androidComponents.onVariants { variant ->
         isReproducibleFileOrder = true
 
         from(moduleProp.map { it.outputs })
+        from(clientCertificate.map { it.outputs })
         from(configXml.map { it.outputs }) {
             into("system/etc/sysconfig")
         }

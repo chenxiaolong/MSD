@@ -52,7 +52,7 @@ The daemon part of MSD runs as the `system` user and with the `CAP_CHOWN` capabi
 
 When setting up mass storage devices, the daemon never opens files on its own. The app opens files itself and then sends the open file descriptor the daemon over a Unix socket. This way, even if a malicious client happened to be able to connect to the daemon, it can't expose files over mass storage devices that it didn't already have access to.
 
-The daemon relies on SELinux for access control. If it detects certain scenarios where SELinux is not configured correctly, it will reject connections from all clients to avoid opening a security hole.
+The app runs in Android's stock `untrusted_app` domain. The daemon authenticates clients using their kernel-reported UID and installed APK signing certificate, with Package Manager queries handled by a root supervisor. The daemon retains its restricted `msd_daemon` domain and SELinux safety checks.
 
 ## Advanced features
 

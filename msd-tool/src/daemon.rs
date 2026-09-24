@@ -6,8 +6,8 @@
 //! currently active functions and setting the USB controller to emulate mass
 //! storage devices.
 //!
-//! Access control is handled entirely by the SELinux policy. If SELinux is not
-//! enforcing at the time of the connection, the connection will be terminated.
+//! The trusted supervisor authenticates each peer UID against Android's package
+//! manager and the pinned signing certificate. SELinux must also be enforcing.
 //!
 //! Protocol violations terminate the connection. Only valid, but failed,
 //! requests result in an [`ErrorResponse`].
@@ -41,6 +41,7 @@ use rustix::{
 use tracing::{debug, error, info, info_span, warn};
 
 use crate::{
+    auth::Authenticator,
     message::{
         self, ActiveMassStorageDevice, ErrorResponse, FromSocket, GetFunctionsResponse,
         GetMassStorageResponse, Request, Response, SetMassStorageRequest, SetMassStorageResponse,
@@ -67,8 +68,7 @@ pub fn socket_addr() -> SocketAddr {
 }
 
 /// Check that SELinux is enabled, enforcing, and that the policy seems to be
-/// correct. This acts as a sanity check since we rely on SELinux for access
-/// control.
+/// correct. Certificate authentication supplements these SELinux safeguards.
 fn check_selinux() -> Result<()> {
     let path = Path::new(SELINUX_ENFORCE);
 
@@ -329,7 +329,7 @@ fn handle_request(request: &Request) -> Response {
     })
 }
 
-fn handle_client(mut stream: UnixStream) -> Result<()> {
+fn handle_client(mut stream: UnixStream, uid: Uid, auth: &Authenticator) -> Result<()> {
     check_selinux()?;
     negotiate_protocol(&mut stream)?;
 
@@ -340,6 +340,8 @@ fn handle_client(mut stream: UnixStream) -> Result<()> {
             Err(e) => return Err(e).context("Failed to receive request"),
         };
 
+        // Revalidate existing connections too, including after package changes.
+        auth.authorize(uid)?;
         debug!("Request: {request:?}");
 
         let response = handle_request(&request);
@@ -421,16 +423,25 @@ fn drop_privileges() -> Result<()> {
 }
 
 pub fn subcommand_daemon(_cli: &DaemonCli) -> Result<()> {
+    let auth = Authenticator::new()?;
     drop_privileges()?;
 
     let listener =
         UnixListener::bind_addr(&socket_addr()).context("Failed to listen on domain socket")?;
 
     thread::scope(|scope| -> Result<()> {
+        let auth = &auth;
         for stream in listener.incoming() {
             let stream = stream.context("Failed to accept incoming connection")?;
             let ucred = rustix::net::sockopt::socket_peercred(&stream)
                 .context("Failed to get socket peer credentials")?;
+
+            // Reject unauthenticated clients before parsing bytes or allocating
+            // a worker thread. The pipe query has a bounded timeout.
+            if let Err(e) = auth.authorize(ucred.uid) {
+                warn!(uid = ucred.uid.as_raw(), "Rejected connection: {e:#}");
+                continue;
+            }
 
             scope.spawn(move || {
                 let _span = info_span!(
@@ -448,7 +459,7 @@ pub fn subcommand_daemon(_cli: &DaemonCli) -> Result<()> {
 
                 info!("Received connection");
 
-                if let Err(e) = handle_client(stream) {
+                if let Err(e) = handle_client(stream, ucred.uid, auth) {
                     error!("Thread failed: {e:?}");
                 }
             });
