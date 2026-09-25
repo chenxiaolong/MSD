@@ -9,6 +9,8 @@
 
 ### Unreleased
 
+* Fix SELinux denials on certain devices when MediaProvider uses FUSE passthrough ([PR #130])
+
 ### Version 2.5
 
 * Add support for building the app on non-Linux systems ([PR #119])
@@ -248,3 +250,4 @@
 [PR #124]: https://github.com/chenxiaolong/MSD/pull/124
 [PR #125]: https://github.com/chenxiaolong/MSD/pull/125
 [PR #126]: https://github.com/chenxiaolong/MSD/pull/126
+[PR #130]: https://github.com/chenxiaolong/MSD/pull/130
