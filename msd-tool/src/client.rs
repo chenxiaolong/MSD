@@ -1,11 +1,11 @@
-// SPDX-FileCopyrightText: 2024 Andrew Gunnerson
+// SPDX-FileCopyrightText: 2024-2026 Andrew Gunnerson
 // SPDX-License-Identifier: GPL-3.0-only
 
 use std::{fs::File, os::unix::net::UnixStream, path::PathBuf};
 
 use anyhow::{Context, Result, bail};
 use byteorder::{ReadBytesExt, WriteBytesExt};
-use clap::{CommandFactory, Parser, Subcommand, ValueEnum};
+use winnow_args::{Args, Subcommand, ValueEnum};
 
 use crate::{
     daemon,
@@ -63,35 +63,11 @@ pub fn subcommand_client(cli: &ClientCli) -> Result<()> {
         }
         ClientCommand::SetMassStorage(c) => {
             if c.file.len() != c.type_.len() {
-                let (arg_id, actual_len, expected_len) = if c.file.len() < c.type_.len() {
-                    ("file", c.file.len(), c.type_.len())
-                } else {
-                    ("type_", c.type_.len(), c.file.len())
-                };
-
-                let mut command = SetMassStorageCli::command();
-                command.build();
-
-                let arg = command
-                    .get_arguments()
-                    .find(|a| a.get_id() == arg_id)
-                    .expect("argument not found");
-
-                let mut error = clap::Error::new(clap::error::ErrorKind::WrongNumberOfValues)
-                    .with_cmd(&command);
-                error.insert(
-                    clap::error::ContextKind::InvalidArg,
-                    clap::error::ContextValue::String(arg.to_string()),
+                bail!(
+                    "Number of disk images ({}) and device types ({}) must match",
+                    c.file.len(),
+                    c.type_.len(),
                 );
-                error.insert(
-                    clap::error::ContextKind::ActualNumValues,
-                    clap::error::ContextValue::Number(actual_len as isize),
-                );
-                error.insert(
-                    clap::error::ContextKind::ExpectedNumValues,
-                    clap::error::ContextValue::Number(expected_len as isize),
-                );
-                error.exit();
             }
 
             let mut devices = vec![];
@@ -139,9 +115,8 @@ pub fn subcommand_client(cli: &ClientCli) -> Result<()> {
                             (false, true) => MassStorageType::DiskRo,
                             (false, false) => MassStorageType::DiskRw,
                         };
-                        let type_value = type_.to_possible_value().unwrap();
 
-                        println!("{} -> {:?}", type_value.get_name(), device.file);
+                        println!("{} -> {:?}", type_.name(), device.file);
                     }
                 }
                 r => bail!("Invalid response: {r:?}"),
@@ -153,7 +128,7 @@ pub fn subcommand_client(cli: &ClientCli) -> Result<()> {
 }
 
 /// Get currently active USB controller functions.
-#[derive(Debug, Parser)]
+#[derive(Debug, Args)]
 struct GetFunctionsCli;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
@@ -170,19 +145,19 @@ enum MassStorageType {
 ///
 /// This command always replaces all mass storage devices. To remove all of
 /// them, don't specify any files.
-#[derive(Debug, Parser)]
+#[derive(Debug, Args)]
 struct SetMassStorageCli {
     /// Disk image or ISO file.
-    #[clap(short, long, value_parser)]
+    #[arg(short, long)]
     file: Vec<PathBuf>,
 
     /// Mass storage device type.
-    #[clap(short, long)]
+    #[arg(short, long = "type")]
     type_: Vec<MassStorageType>,
 }
 
 /// Get currently active mass storage devices.
-#[derive(Debug, Parser)]
+#[derive(Debug, Args)]
 struct GetMassStorageCli;
 
 #[allow(clippy::enum_variant_names)]
@@ -194,8 +169,8 @@ enum ClientCommand {
 }
 
 /// Send messages to daemon.
-#[derive(Debug, Parser)]
+#[derive(Debug, Args)]
 pub struct ClientCli {
-    #[command(subcommand)]
+    #[arg(subcommand)]
     command: ClientCommand,
 }

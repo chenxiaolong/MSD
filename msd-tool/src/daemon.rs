@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024-2025 Andrew Gunnerson
+// SPDX-FileCopyrightText: 2024-2026 Andrew Gunnerson
 // SPDX-License-Identifier: GPL-3.0-only
 
 //! This module implements the daemon that runs as the system user and listens
@@ -33,12 +33,12 @@ use std::os::linux::net::SocketAddrExt;
 
 use anyhow::{Context, Result, anyhow, bail};
 use byteorder::{ReadBytesExt, WriteBytesExt};
-use clap::Parser;
 use rustix::{
     fs::{FileType, Gid, Mode, Uid},
     thread::{CapabilitySet, CapabilitySets},
 };
 use tracing::{debug, error, info, info_span, warn};
+use winnow_args::Args;
 
 use crate::{
     message::{
@@ -461,5 +461,5 @@ pub fn subcommand_daemon(_cli: &DaemonCli) -> Result<()> {
 }
 
 /// Run daemon.
-#[derive(Debug, Parser)]
+#[derive(Debug, Args)]
 pub struct DaemonCli;

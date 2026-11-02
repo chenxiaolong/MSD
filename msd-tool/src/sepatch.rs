@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024-2025 Andrew Gunnerson
+// SPDX-FileCopyrightText: 2024-2026 Andrew Gunnerson
 // SPDX-License-Identifier: GPL-3.0-only
 
 use std::{
@@ -9,8 +9,8 @@ use std::{
 };
 
 use anyhow::{Context, Result, anyhow, bail};
-use clap::{Args, Parser};
 use sepatch::{PolicyDb, RuleAction};
+use winnow_args::Args;
 
 fn read_policy(path: &Path) -> Result<PolicyDb> {
     let data = fs::read(path).with_context(|| format!("Failed to open for reading: {path:?}"))?;
@@ -493,14 +493,14 @@ pub fn subcommand_sepatch(cli: &SepatchCli) -> Result<()> {
 }
 
 #[derive(Debug, Args)]
-#[group(required = true, multiple = false)]
+#[arg(group("source", required))]
 struct SourceGroup {
     /// Source policy file.
-    #[arg(short, long, value_parser, value_name = "FILE")]
+    #[arg(short, long, value_name = "FILE", group = "source")]
     source: Option<PathBuf>,
 
     /// Use currently loaded policy as source.
-    #[arg(short = 'S', long)]
+    #[arg(short = 'S', long, group = "source")]
     source_kernel: bool,
 }
 
@@ -517,14 +517,14 @@ impl SourceGroup {
 }
 
 #[derive(Debug, Args)]
-#[group(required = true, multiple = false)]
+#[arg(group("target", required))]
 struct TargetGroup {
     /// Target policy file.
-    #[arg(short, long, value_parser, value_name = "FILE")]
+    #[arg(short, long, value_name = "FILE", group = "target")]
     target: Option<PathBuf>,
 
     /// Load patched policy into kernel.
-    #[arg(short = 'T', long)]
+    #[arg(short = 'T', long, group = "target")]
     target_kernel: bool,
 }
 
@@ -541,12 +541,12 @@ impl TargetGroup {
 }
 
 /// Patch SELinux policy file.
-#[derive(Debug, Parser)]
+#[derive(Debug, Args)]
 pub struct SepatchCli {
-    #[command(flatten)]
+    #[arg(flatten)]
     source: SourceGroup,
 
-    #[command(flatten)]
+    #[arg(flatten)]
     target: TargetGroup,
 
     /// Remove dontaudit/dontauditxperm rules.
