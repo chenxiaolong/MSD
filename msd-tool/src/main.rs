@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2024 Andrew Gunnerson
+// SPDX-FileCopyrightText: 2024-2026 Andrew Gunnerson
 // SPDX-License-Identifier: GPL-3.0-only
 
 mod client;
@@ -9,13 +9,12 @@ mod usb;
 mod util;
 
 use std::{
-    fmt,
     io::{self, IsTerminal},
     process::ExitCode,
 };
 
-use clap::{Parser, Subcommand, ValueEnum};
 use tracing::{Level, error};
+use winnow_args::{Args, Subcommand, ValueEnum};
 
 #[allow(clippy::enum_variant_names)]
 #[derive(Debug, Subcommand)]
@@ -32,31 +31,17 @@ pub enum LogTarget {
     Logcat,
 }
 
-impl Default for LogTarget {
-    fn default() -> Self {
-        Self::Stderr
-    }
-}
-
-impl fmt::Display for LogTarget {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(self.to_possible_value().ok_or(fmt::Error)?.get_name())
-    }
-}
-
-const HEADING: &str = "Global options";
-
-#[derive(Debug, Parser)]
+#[derive(Debug, Args)]
 struct Cli {
-    #[command(subcommand)]
+    #[arg(subcommand)]
     command: Command,
 
     /// Where to output log messages.
-    #[arg(long, global = true, value_name = "TARGET", default_value_t, help_heading = HEADING)]
+    #[arg(long, global, value_name = "TARGET", default = "stderr")]
     pub log_target: LogTarget,
 
     /// Lowest log message severity to output.
-    #[arg(long, global = true, value_name = "LEVEL", default_value_t = Level::INFO, help_heading = HEADING)]
+    #[arg(long, global, value_name = "LEVEL", from_str, default = "info")]
     pub log_level: Level,
 }
 
