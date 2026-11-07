@@ -7,7 +7,7 @@
     to update the actual links at the bottom of the file.
 -->
 
-### Unreleased
+### Version 2.6
 
 * Fix SELinux denials on certain devices when MediaProvider uses FUSE passthrough ([PR #130])
 * Switch from clap to winnow-args for command line argument parsing ([PR #134])
