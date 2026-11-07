@@ -12,6 +12,7 @@
 * Fix SELinux denials on certain devices when MediaProvider uses FUSE passthrough ([PR #130])
 * Switch from clap to winnow-args for command line argument parsing ([PR #134])
   * Reduces `msd-tool` executable size by 14% to 18%.
+* Update dependencies ([PR #135])
 
 ### Version 2.5
 
@@ -254,3 +255,4 @@
 [PR #126]: https://github.com/chenxiaolong/MSD/pull/126
 [PR #130]: https://github.com/chenxiaolong/MSD/pull/130
 [PR #134]: https://github.com/chenxiaolong/MSD/pull/134
+[PR #135]: https://github.com/chenxiaolong/MSD/pull/135
