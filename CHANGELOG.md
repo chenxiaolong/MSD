@@ -7,6 +7,8 @@
     to update the actual links at the bottom of the file.
 -->
 
+### Unreleased
+
 ### Version 2.6
 
 * Fix SELinux denials on certain devices when MediaProvider uses FUSE passthrough ([PR #130])
