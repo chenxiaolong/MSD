@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    SPDX-FileCopyrightText: 2024-2026 Andrew Gunnerson
+    SPDX-License-Identifier: GPL-3.0-only
+-->
+<resources>
+    <!-- Preference headers -->
+    <string name="pref_header_devices">设备</string>
+    <string name="pref_header_usb">USB</string>
+    <string name="pref_header_about">关于</string>
+    <string name="pref_header_debug">调试</string>
+
+    <!-- Device preferences -->
+    <string name="pref_add_device_name">添加大容量存储设备</string>
+    <string name="pref_add_device_desc">添加新的 CD-ROM, 只读磁盘或可写磁盘设备.</string>
+    <string name="pref_device_name_cdrom">CD-ROM</string>
+    <string name="pref_device_name_disk_ro">只读磁盘</string>
+    <string name="pref_device_name_disk_rw">可写磁盘</string>
+
+    <!-- USB preferences -->
+    <string name="pref_active_functions_name">当前 USB gadget 功能</string>
+    <string name="pref_active_functions_desc_none">(没有启用的功能. 点击刷新.)</string>
+    <string name="pref_enable_mass_storage_name">应用设置</string>
+    <string name="pref_enable_mass_storage_desc">启用或禁用指定的大容量存储设备模拟.</string>
+
+    <!-- About "preference" -->
+    <string name="pref_version_name">版本</string>
+
+    <!-- Debug preferences -->
+    <string name="pref_open_log_dir_name">打开日志目录</string>
+    <string name="pref_open_log_dir_desc">在系统文件管理器 (DocumentsUI) 中打开日志目录.</string>
+
+    <!-- Alerts -->
+    <string name="action_details">详情</string>
+    <string name="dialog_error_details_title">错误详情</string>
+    <string name="alert_query_state_failure">查询 USB 控制器状态失败.</string>
+    <string name="alert_apply_state_failure">配置 USB 控制器失败.</string>
+    <string name="alert_reapply_required">更改将在下次应用设置时生效.</string>
+    <string name="alert_not_local_file">添加镜像失败, 因为它不是本地文件.</string>
+    <string name="alert_not_local_file_details">无法添加该镜像, 因为它不是本地文件. 即使第三方应用提供了支持随机访问的文件描述符, Android 重新打开文件的限制也会导致它无法使用.</string>
+    <string name="alert_create_image_failure">创建新的可写磁盘镜像失败.</string>
+    <string name="alert_resize_image_failure">调整可写磁盘镜像大小失败.</string>
+    <string name="alert_browser_not_found">没有可用的网页浏览器.</string>
+    <string name="alert_documentsui_not_found">Android 内置文件管理器 (DocumentsUI) 不可用.</string>
+
+    <!-- Add device dialog -->
+    <string name="dialog_device_title_add">添加新设备</string>
+    <string name="dialog_device_title_edit">编辑设备</string>
+    <string name="dialog_device_add_cdrom">添加现有 CD-ROM 镜像</string>
+    <string name="dialog_device_add_disk_ro">添加现有只读磁盘镜像</string>
+    <string name="dialog_device_add_disk_rw">添加现有可写磁盘镜像</string>
+    <string name="dialog_device_create_disk_rw">创建新的可写磁盘镜像</string>
+    <string name="dialog_device_resize_disk_rw">调整可写磁盘镜像大小</string>
+    <string name="dialog_device_switch_cdrom">切换为 CD-ROM</string>
+    <string name="dialog_device_switch_disk_ro">切换为只读磁盘</string>
+    <string name="dialog_device_switch_disk_rw">切换为可写磁盘</string>
+    <string name="dialog_device_delete">删除设备</string>
+
+    <!-- Image size dialog -->
+    <string name="dialog_image_size_title">镜像大小</string>
+    <string name="dialog_image_size_create_message">镜像将创建为稀疏文件. 只有写入数据后, 镜像才会开始占用磁盘空间.</string>
+    <string name="dialog_image_size_resize_message">将现有镜像从 %1$d B 调整大小. 此操作不会更改镜像内容. 如需使用额外空间, 还需要手动重新分区.</string>
+    <string name="dialog_image_size_units_message">同时支持 IEC (KiB/MiB/GiB) 和 SI (KB/MB/GB) 后缀.</string>
+    <string name="dialog_image_size_truncate_warning">该大小小于原始大小. 截断镜像可能导致数据丢失.</string>
+</resources>
