@@ -9,6 +9,8 @@
 
 ### Unreleased
 
+* Update Simplified Chinese translations ([PR #137])
+
 ### Version 2.6
 
 * Fix SELinux denials on certain devices when MediaProvider uses FUSE passthrough ([PR #130])
@@ -258,3 +260,4 @@
 [PR #130]: https://github.com/chenxiaolong/MSD/pull/130
 [PR #134]: https://github.com/chenxiaolong/MSD/pull/134
 [PR #135]: https://github.com/chenxiaolong/MSD/pull/135
+[PR #137]: https://github.com/chenxiaolong/MSD/pull/137
