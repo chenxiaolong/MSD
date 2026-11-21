@@ -7,7 +7,7 @@
     to update the actual links at the bottom of the file.
 -->
 
-### Unreleased
+### Version 2.7
 
 * Update Simplified Chinese translations ([PR #137])
 * Update dependencies ([PR #138])
