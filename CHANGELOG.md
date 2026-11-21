@@ -10,6 +10,7 @@
 ### Unreleased
 
 * Update Simplified Chinese translations ([PR #137])
+* Update dependencies ([PR #138])
 
 ### Version 2.6
 
@@ -261,3 +262,4 @@
 [PR #134]: https://github.com/chenxiaolong/MSD/pull/134
 [PR #135]: https://github.com/chenxiaolong/MSD/pull/135
 [PR #137]: https://github.com/chenxiaolong/MSD/pull/137
+[PR #138]: https://github.com/chenxiaolong/MSD/pull/138
