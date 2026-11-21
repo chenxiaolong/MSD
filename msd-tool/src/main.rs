@@ -41,7 +41,15 @@ struct Cli {
     pub log_target: LogTarget,
 
     /// Lowest log message severity to output.
-    #[arg(long, global, value_name = "LEVEL", from_str, default = "info")]
+    #[arg(
+        long,
+        global,
+        value_name = "LEVEL",
+        from_str,
+        choices("error", "warn", "info", "debug", "trace"),
+        choices_strict = false,
+        default = "info"
+    )]
     pub log_level: Level,
 }
 
